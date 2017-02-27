@@ -1,0 +1,251 @@
+\documentclass[]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[]{palatino}
+\usepackage[]{eulervm}
+\usepackage[]{amsmath, amsthm, amssymb} 
+\usepackage[]{thmtools} 
+\usepackage[]{mdframed} 
+\usepackage[]{booktabs} 
+\usepackage[]{subcaption} 
+\usepackage[margin=2in]{geometry} 
+
+\usepackage[]{hyperref} 
+\usepackage[capitalize, noabbrev]{cleveref} 
+
+\renewcommand{\texttt}[1]{\textcolor{Maroon}{#1}}
+\usepackage[usenames, dvipsnames, svgnames, table]{xcolor} 
+\declaretheoremstyle[
+    headfont = \color{Maroon}\normalfont\bfseries,
+    leftmargin=-10t,
+    mdframed = {
+        linecolor=Gray,
+        backgroundcolor=Gray!20
+    }
+]{BVP}
+\declaretheorem[
+    style=BVP,
+    numbered=yes,
+    name=Boundary Value Problem,
+]{BVP}
+
+\usepackage[]{mathtools} 
+
+\newcommand{\lapl}{\Delta}
+\newcommand{\norm}[2]{\| #1 \|_{#2}}
+\newcommand{\x}{\mathbf{x}}
+\renewcommand{\u}{\mathbf{u}}
+
+\title{\textsc{Assignment 1 \\ The Finite element method in computational mechanics}}
+\author{Ivar Haugaløkken Stangeby}
+
+\begin{document}
+\maketitle    
+\section*{Exercise 1}
+\label{sec:formulation_of_problem}
+
+In this assignment we start off by considering the following boundary value
+problem.
+
+\begin{BVP}
+    \label{bvp:one}
+    On the two dimensional domain $\Omega \coloneqq (0, 1)^2$, consider the
+    problem:
+    \begin{align}
+        \label{eq:problem}
+        -\nabla u &= f \text{ in } \Omega,\\ 
+        u &= 0 \text{ for } x = 0 \text{ and } x = 1,\\
+        \frac{\partial u}{\partial n} &= 0 \text{ for } y = 0 \text{ and } y = 1.
+    \end{align}
+\end{BVP}
+
+\subsection*{Analytical gobbledygook}
+\label{sub:analytical_}
+
+
+We start by assuming $u = \sin(\pi k x)\cos(\pi k y)$ and compute the source
+term $f = -\lapl u = 2\pi^2 k^2 u$.
+We wish to compute analytically, the $H^p$ norm.  Recall that the $H^p$  norm
+$\| \cdot \|_p$ is defined by
+\begin{equation}
+    \notag
+    \| u \|_p = \left( \sum^{}_{|\alpha|\leq p} \int_\Omega
+    \big(\frac{\partial^{|\alpha|} u}{\partial \x^\alpha}\big)^2 \, d\x
+\right)^{1/2}
+\end{equation}
+where $\alpha \coloneqq (\alpha_1, \ldots, \alpha_d)$ is a multi-index, and
+$|\alpha| \coloneqq \alpha_1 + \ldots + \alpha_d$. In the case where $\Omega$
+is a subset of $\mathbb{R}^2$, we have $\alpha = (i, j)$ and $|\alpha| = i +
+j$. Note that the terms in the sum occur as the $L^2$ norm squared of the mixed
+partial derivatives, i.e.,
+\begin{align*}
+    \notag
+    \left\| \frac{\partial^{i+j}u}{\partial x^i \partial y^j} \right\|_{L^2}^2
+    = (k \pi)^{2(i+j)}\int_0^1\int_0^1 \cos^2(k\pi x) \sin^2(k\pi y) \, dx dy.
+\end{align*}
+Using the fact that both $\sin^2(\pi k y)$ and $\cos^2(\pi k x)$ integrate to
+$1/2$ over the unit interval, we have that this equals $(k \pi)^{2(i+j)}/4$.
+For $|\alpha| = n$, we have $n + 1$ partial derivatives of order $n$, hence
+$\| u\|_p$ can be computed as
+\begin{equation}
+    \notag
+    \| u \|_p = \frac{1}{2}\sum^{}_{|\alpha| \leq p} \sum_{r = 0}^{ |\alpha| } (\pi k)^{i+j}.
+\end{equation}
+
+\subsection*{Numerical error estimates}
+\label{sub:simulations}
+
+We solve the system given in \cref{bvp:one} in the \textsc{Python}-framework
+\texttt{FeniCS}. Our mesh is taken to be uniformly spaced with mesh size $h
+\coloneqq 1 / N$. We examine the error in both the $L_2$ and the $H^1$ norms
+for $k = 1, 10$ and for both first and second order Lagrangian elements, that is
+\begin{align*}
+    \text{error} = \| u - u_h \|_q && \text{ for } q = 0, 1.
+\end{align*}
+The numerical errors are listed in \cref{tbl:errors_1}. 
+
+We now wish to verify the two following error estimates:
+\begin{align}
+    \label{eq:errors_one}
+    \|u - u_h\|_1 \leq C_\alpha h^\alpha,
+    \shortintertext{and}
+    \|u - u_h\|_0 \leq C_\beta h^\beta.
+\end{align}
+These error estimates can be rewritten as linear equations in $h$ with slopes
+$\alpha$, $\beta$ and constant terms $\log(C_\alpha)$, $\log(C_\beta)$,
+respectively. That is
+\begin{equation}
+    \notag
+    \log(\|u - u_h\|_1) \leq \alpha h + \log(C_\alpha),
+\end{equation}
+and similarly for the $\| \cdot \|_0$ error. Sampling the left hand side for
+several values of $h$, we can fit a linear function to the data, hence finding
+the unknown slope and constant terms. This has been done using the function
+\texttt{numpy.polyfit()}. The results are given in \cref{tbl:polyfit_one}.
+
+Plotting the errors against the number of elements $N$ in a $\log$-$\log$ plot
+reveals a linear tendency. 
+
+\begin{table}[htpb]
+    \centering
+
+    \caption{The $L_2$ and $H^1$ errors for varying number of mesh-elements.
+    First order elements to the left and second order elements to the right.}
+
+    \label{tbl:errors_1}
+
+    \subcaption{Errors for $k = 1$.}
+    \begin{tabular}{ccc}
+        \toprule
+        $N$  & $L_2$ & $H^1$\\
+        \midrule
+        8	& 0.62583&	 3.03866 \\
+        16	& 0.64926&	 3.11820 \\
+        32	& 0.65536&	 3.13876 \\
+        64	& 0.65690&	 3.14394 \\
+        \bottomrule
+    \end{tabular}\hspace{4em}
+    \begin{tabular}{ccc}
+        \toprule
+        $N$  & $L_2$ & $H^1$\\
+        \midrule
+        8	&0.65310	&3.11978\\
+        16	&0.65637	&3.13927\\
+        32	&0.65716	&3.14408\\
+        64	&0.65735	&3.14528\\
+        \bottomrule
+    \end{tabular}\\[2em]
+
+    \subcaption{Errors for $k = 10$.}
+
+    \begin{tabular}{ccc}
+        \toprule
+        $N$  & $L_2$ & $H^1$\\
+        \midrule
+        8	 &0.74298	 &24.94148\\
+        16	 &0.50061	 &28.59929\\
+        32	 &0.76293	 &37.48450\\
+        64	 &0.91167	 &41.68281\\
+        \bottomrule
+    \end{tabular}\hspace{4em}
+    \begin{tabular}{ccc}
+        \toprule
+        $N$  & $L_2$ & $H^1$\\
+        \midrule
+        8	&0.65808	&26.95569\\
+        16	&0.71521	&32.92179\\
+        32	&0.90010	&40.14219\\
+        64	&0.95659	&42.52210\\
+        \bottomrule
+    \end{tabular}
+
+\end{table}
+\begin{table}[htpb]
+    \centering
+    \caption{The slopes and coefficients for the error estimates given in
+    \cref{eq:errors_one}.}
+    \label{tbl:polyfit_one}
+    \begin{tabular}{ccccc}
+        \toprule
+        $k$ & $C_\alpha$ & $\alpha$ & $C_\beta$ & $\beta$\\
+        \midrule
+        1 & & & & \\
+        10 & & & & \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section*{Exercise 2}
+\label{sec:exercise_2}
+
+We now consider another boundary value problem:
+\begin{BVP}
+    \label{bvp:two}
+    On the two dimensional domain $\Omega \coloneqq (0, 1)^2$, consider the
+    second order problem:
+    \begin{align}
+        \label{eq:problem_2}
+        -\mu\Delta u + u_x &= 0 \text{ in } \Omega,\\ 
+        u &= 0 \text{ for } x = 0,\label{eq:d_one} \\
+        u &= 1 \text{ for } x = 1,\label{eq:d_two}\\
+        \frac{\partial u}{\partial n} &= 0 \text{ for } y = 0 \text{ and } y = 1.\label{eq:neumann}
+    \end{align}
+\end{BVP}
+
+\subsection*{Analytical solution}
+\label{sec:analytical_solution}
+
+It is possible to derive an analytical solution for the above boundary value
+problem using seperation of variables. We make the ansatz that we can write
+$u(x, y) = f(x)g(y)$. Plugging this into \cref{bvp:two}, and dividing by $-\mu
+u$ we arrive at the set of equations
+\begin{align}
+    f''(x) - \frac{1}{\mu}f'(x) - Cf(x) &= 0, \label{eq:f}\\
+    g''(y) + Cg(y) &= 0,
+\end{align}
+where $C$ is some unknown constant. Solving for $g(y)$ first, we arrive at
+the solution
+\begin{equation}
+    \notag
+    g(y) = A\sin(\sqrt{C}y) + B\cos(\sqrt{C}y).
+\end{equation}
+Enforcing the Neumann boundary conditions given in \cref{eq:neumann}, we
+determine $g$ to be constant (with respect to $x$) equal to 
+\begin{equation}
+    \notag
+    g(y) = B\cos(n\pi y), 
+\end{equation}
+with $n \in \mathbb{N}$. In particular, for $n = 0$, $C = 0$ so we have $g(y) = B$. Furthermore, with this choice of $n$, \cref{eq:f} reduces to
+\begin{equation}
+    \notag
+    f''(x) - \frac{1}{\mu}f'(x) = 0
+\end{equation}
+which has solution $ f(x) = D e^{\frac{1}{\mu}x} + E$.  Enforcing the Dirichlet
+boundary conditions given in \cref{eq:d_one,eq:d_two} we determine $E = -1$ and
+$D = (e^{\frac{1}{\mu}} - 1)^{-1}$, as well as $B = 1$, yielding the final
+solution
+\begin{equation}
+    \notag
+    u(x, y) = f(x)g(y) = \frac{e^{\frac{1}{\mu}x} - 1}{e^{\frac{1}{\mu}} - 1}.
+\end{equation}
+\end{document}
