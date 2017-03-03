@@ -4,6 +4,14 @@ import numpy as np
 
 set_log_active(False)
 
+class Right(SubDomain):
+    def inside(self, x, on_boundary, eps=1.e-14):
+        return x[0] > 1 - eps
+
+class Left(SubDomain):
+    def inside(self, x, on_boundary, eps=1.e-14):
+        return x[0] < eps
+
 def solve_system_two(N=8, mu=1, degree=1, SUPG=False):
     """
     solves the boundary value problem in exercise 2
@@ -15,8 +23,8 @@ def solve_system_two(N=8, mu=1, degree=1, SUPG=False):
     u_numerical = Function(V)
 
     bcs = [
-        DirichletBC(V, Constant(0.0), 'near(x[0], 0)'),
-        DirichletBC(V, Constant(1.0), 'near(x[0], 1)')
+        DirichletBC(V, Constant(0.0), Left()),
+        DirichletBC(V, Constant(1.0), Right())
     ]
 
     u = TrialFunction(V)
@@ -25,7 +33,6 @@ def solve_system_two(N=8, mu=1, degree=1, SUPG=False):
     if SUPG:
         beta = 0.5 * mesh.hmin()
         v = v + beta * v.dx(0)
-        print(v)
 
     f = Constant(0.0)
     g = Constant(0.0)
@@ -82,8 +89,8 @@ def exercise_2_b(degree, SUPG=False):
                 mu=mu,
                 degree=degree)
 
-            L2 = errornorm(u_exact, u_numerical, 'l2', degree_rise=3)
-            H1 = errornorm(u_exact, u_numerical, 'h1', degree_rise=3)
+            L2 = errornorm(u_exact, u_numerical, 'L2', degree_rise=3)
+            H1 = errornorm(u_exact, u_numerical, 'H1', degree_rise=3)
 
             errors_L2.set_value(N, mu, L2)
             errors_H1.set_value(N, mu, H1)
@@ -134,36 +141,36 @@ def estimate_error(L2, H1):
     for p in parameters:
         L2_fit = np.polyfit(h_log, L2_log[p], deg=1)
         H1_fit = np.polyfit(h_log, H1_log[p], deg=1)
+
+        # exponentiate to regain coefficients
+        L2_fit[1] = np.exp(L2_fit[1])
+        H1_fit[1] = np.exp(H1_fit[1])
+    
         best_fit.loc[p] = list(L2_fit) + list(H1_fit)
 
     return best_fit
 
 
 if __name__ == "__main__":
-    #  print("Exercise 1.b - computing norms")
-    #  P1_L2, P1_H1 = exercise_1_b(degree=1)
-    #  P2_L2, P2_H1 = exercise_1_b(degree=2)
-    #  print(P1_L2)
-    #  print(P1_H1)
-    #  print(P2_L2)
-    #  print(P2_H1)
+    print("Exercise 1.b - computing norms")
+    P1_L2, P1_H1 = exercise_1_b(degree=1)
+    P2_L2, P2_H1 = exercise_1_b(degree=2)
+    print(P1_L2)
+    print(P1_H1)
+    print(P2_L2)
+    print(P2_H1)
 
-    #  print("Exercise 1.c - computing error estimate")
-    #  P1_best_fit = estimate_error(P1_L2, P2_H1)
-    #  P2_best_fit = estimate_error(P2_L2, P2_H1)
-    #  print(P1_best_fit)
-    #  print(P2_best_fit)
+    print("Exercise 1.c - computing error estimate")
+    P1_best_fit = estimate_error(P1_L2, P2_H1)
+    P2_best_fit = estimate_error(P2_L2, P2_H1)
+    print(P1_best_fit)
+    print(P2_best_fit)
 
-    print("Exercise 2.b - computing norms")
+    print("Exercise 2.b - computing norms - using degree 1 elements")
     P1_L2, P1_H1 = exercise_2_b(degree=1, SUPG=True)
-    P2_L2, P2_H1 = exercise_2_b(degree=2, SUPG=True)
-    #  print(P1_L2)
-    #  print(P1_H1)
-    #  print(P2_L2)
-    #  print(P2_H1)
+    print(P1_L2)
+    print(P1_H1)
 
-    #  print("Exercise 2.c - computing error estimate")
-    #  P1_best_fit = estimate_error(P1_L2, P2_H1)
-    #  P2_best_fit = estimate_error(P2_L2, P2_H1)
-    #  print(P1_best_fit)
-    #  print(P2_best_fit)
+    print("Exercise 2.c - computing error estimate")
+    P1_best_fit = estimate_error(P1_L2, P1_H1)
+    print(P1_best_fit)
