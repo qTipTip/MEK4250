@@ -65,7 +65,7 @@ def solve_system_one(N=8, k=1, degree=1):
         '2*pi*pi*k*k*sin(pi*k*x[0])*cos(pi*k*x[1])', k=k, degree=degree)
     g = Constant(0.0)
 
-    a = -inner(grad(u), grad(v)) * dx
+    a = inner(grad(u), grad(v)) * dx
     L = f * v * dx + g * v * ds
 
     solve(a == L, u_numerical, bc)
@@ -74,7 +74,7 @@ def solve_system_one(N=8, k=1, degree=1):
 
 
 def exercise_2_b(degree, SUPG=False):
-    mu_values = [1, 0.1, 0.01, 0.002]
+    mu_values = [1, 0.1, 0.01]
     N_values = [8, 16, 32, 64]
 
     errors_L2 = DataFrame(index=N_values, columns=mu_values)
@@ -113,7 +113,6 @@ def exercise_1_b(degree):
             u_numerical, V, omega = solve_system_one(N=N, k=k, degree=degree)
             u_exact = Expression(
                 'sin(k*pi*x[0])*cos(k*pi*x[1])', k=k, degree=degree)
-
             L2 = errornorm(u_exact, u_numerical, 'l2', degree_rise=3)
             H1 = errornorm(u_exact, u_numerical, 'h1', degree_rise=3)
 
@@ -152,25 +151,60 @@ def estimate_error(L2, H1):
 
 
 if __name__ == "__main__":
-    print("Exercise 1.b - computing norms")
-    P1_L2, P1_H1 = exercise_1_b(degree=1)
-    P2_L2, P2_H1 = exercise_1_b(degree=2)
-    print(P1_L2)
-    print(P1_H1)
-    print(P2_L2)
-    print(P2_H1)
+    format_table = lambda x : "{0:.6f}".format(x)
 
-    print("Exercise 1.c - computing error estimate")
-    P1_best_fit = estimate_error(P1_L2, P2_H1)
-    P2_best_fit = estimate_error(P2_L2, P2_H1)
-    print(P1_best_fit)
-    print(P2_best_fit)
+    #  print("Exercise 1.b - computing norms")
+    #  P1_L2, P1_H1 = exercise_1_b(degree=1)
+    #  P2_L2, P2_H1 = exercise_1_b(degree=2)
+    #  print(P1_L2.applymap(format_table).to_latex())
+    #  print(P1_H1.applymap(format_table).to_latex())
+    #  print(P2_L2.applymap(format_table).to_latex())
+    #  print(P2_H1.applymap(format_table).to_latex())
+    #  print("\n\n\n")
 
-    print("Exercise 2.b - computing norms - using degree 1 elements")
+    #  print("Exercise 1.c - computing error estimate")
+    #  P1_best_fit = estimate_error(P1_L2, P1_H1)
+    #  P2_best_fit = estimate_error(P2_L2, P2_H1)
+    #  print(P1_best_fit.applymap(format_table).to_latex())
+    #  print(P2_best_fit.applymap(format_table).to_latex())
+    #  print("\n\n\n")
+
+    #  print("Exercise 2.b - computing norms - using degree 1 elements")
+    #  P1_L2, P1_H1 = exercise_2_b(degree=1, SUPG=False)
+    #  print(P1_L2.applymap(format_table).to_latex())
+    #  print(P1_H1.applymap(format_table).to_latex())
+    #  print("\n\n\n")
+
+    #  print("Exercise 2.b - computing norms - using degree 2 elements")
+    #  P2_L2, P2_H1 = exercise_2_b(degree=2, SUPG=False)
+    #  print(P1_L2.applymap(format_table).to_latex())
+    #  print(P1_H1.applymap(format_table).to_latex())
+    #  print("\n\n\n")
+
+
+    #  print("Exercise 2.c - computing error estimate")
+    #  P1_best_fit = estimate_error(P1_L2, P1_H1)
+    #  P2_best_fit = estimate_error(P2_L2, P2_H1)
+    #  print(P1_best_fit.applymap(format_table).to_latex())
+    #  print(P2_best_fit.applymap(format_table).to_latex())
+    #  print("\n\n\n")
+
+    print("Exercise 2.d - computing norms - using degree 1 elements - with SUPG")
     P1_L2, P1_H1 = exercise_2_b(degree=1, SUPG=True)
-    print(P1_L2)
-    print(P1_H1)
+    print(P1_L2.applymap(format_table).to_latex())
+    print(P1_H1.applymap(format_table).to_latex())
+    print("\n\n\n")
 
-    print("Exercise 2.c - computing error estimate")
+    print("Exercise 2.d - computing norms - using degree 2 elements - with SUPG")
+    P2_L2, P2_H1 = exercise_2_b(degree=2, SUPG=True)
+    print(P1_L2.applymap(format_table).to_latex())
+    print(P1_H1.applymap(format_table).to_latex())
+    print("\n\n\n")
+
+
+    print("Exercise 2.d- computing error estimate")
     P1_best_fit = estimate_error(P1_L2, P1_H1)
-    print(P1_best_fit)
+    P2_best_fit = estimate_error(P2_L2, P2_H1)
+    print(P1_best_fit.applymap(format_table).to_latex())
+    print(P2_best_fit.applymap(format_table).to_latex())
+    print("\n\n\n")

@@ -15,12 +15,13 @@
 
 \renewcommand{\texttt}[1]{\textcolor{Maroon}{#1}}
 \usepackage[usenames, dvipsnames, svgnames, table]{xcolor} 
+
 \declaretheoremstyle[
     headfont = \color{Maroon}\normalfont\bfseries,
     leftmargin=-10t,
     mdframed = {
         linecolor=Gray,
-        backgroundcolor=Gray!20
+        backgroundcolor=Gray!10
     }
 ]{BVP}
 \declaretheorem[
@@ -49,7 +50,7 @@ problem.
 
 \begin{BVP}
     \label{bvp:one}
-    On the two dimensional domain $\Omega \coloneqq (0, 1)^2$, consider the
+    On the two dimensional rectangular domain $\Omega \coloneqq (0, 1)^2$, consider the
     problem:
     \begin{align}
         \label{eq:problem}
@@ -77,7 +78,7 @@ where $\alpha \coloneqq (\alpha_1, \ldots, \alpha_d)$ is a multi-index, and
 $|\alpha| \coloneqq \alpha_1 + \ldots + \alpha_d$. In the case where $\Omega$
 is a subset of $\mathbb{R}^2$, we have $\alpha = (i, j)$ and $|\alpha| = i +
 j$. Note that the terms in the sum occur as the $L^2$ norm squared of the mixed
-partial derivatives, i.e.,
+partial derivatives, for instance:
 \begin{align*}
     \notag
     \left\| \frac{\partial^{i+j}u}{\partial x^i \partial y^j} \right\|_{L^2}^2
@@ -89,7 +90,8 @@ For $|\alpha| = n$, we have $n + 1$ partial derivatives of order $n$, hence
 $\| u\|_p$ can be computed as
 \begin{equation}
     \notag
-    \| u \|_p = \frac{1}{2}\sum^{}_{|\alpha| \leq p} \sum_{r = 0}^{ |\alpha| } (\pi k)^{i+j}.
+    \| u \|_p = \frac{1}{2} 
+    \Big(\sum^{}_{|\alpha| \leq p} (k\pi)^{2|\alpha|}\Big)^{1/2}.
 \end{equation}
 
 \subsection*{Numerical error estimates}
@@ -102,12 +104,12 @@ for $k = 1, 10$ and for both first and second order Lagrangian elements, that is
 \begin{align*}
     \text{error} = \| u - u_h \|_q && \text{ for } q = 0, 1.
 \end{align*}
-The numerical errors are listed in \cref{tbl:errors_1}. 
+Computed by the function \texttt{exercise\_1\_b()}, the numerical errors are
+listed in \cref{tbl:errors_1}. 
 
 We now wish to verify the two following error estimates:
 \begin{align}
-    \label{eq:errors_one}
-    \|u - u_h\|_1 \leq C_\alpha h^\alpha,
+    \|u - u_h\|_1 \leq C_\alpha h^\alpha,\label{eq:errors_one}
     \shortintertext{and}
     \|u - u_h\|_0 \leq C_\beta h^\beta.
 \end{align}
@@ -121,61 +123,61 @@ respectively. That is
 and similarly for the $\| \cdot \|_0$ error. Sampling the left hand side for
 several values of $h$, we can fit a linear function to the data, hence finding
 the unknown slope and constant terms. This has been done using the function
-\texttt{numpy.polyfit()}. The results are given in \cref{tbl:polyfit_one}.
-
-Plotting the errors against the number of elements $N$ in a $\log$-$\log$ plot
-reveals a linear tendency. 
+\texttt{numpy.polyfit()}, and the full implementation can be seen in
+\texttt{estimate\_error()}. The results are given in \cref{tbl:polyfit_one}.
 
 \begin{table}[htpb]
     \centering
 
-    \caption{The $L_2$ and $H^1$ errors for varying number of mesh-elements.
-    First order elements to the left and second order elements to the right.}
+    \caption{The $L_2$ and $H^1$ errors for varying mesh size,
+    using both first order and second order Lagrangian elements.}
 
     \label{tbl:errors_1}
 
-    \subcaption{Errors for $k = 1$.}
+    \subcaption{$L_2$ error to the left, $H^1$ error to the right. Using first
+    order elements.}
     \begin{tabular}{ccc}
         \toprule
-        $N$  & $L_2$ & $H^1$\\
+        {$N$} &        $k=$1  &        $k=10$ \\
         \midrule
-        8	& 0.62583&	 3.03866 \\
-        16	& 0.64926&	 3.11820 \\
-        32	& 0.65536&	 3.13876 \\
-        64	& 0.65690&	 3.14394 \\
+        8  &  0.032766 &  0.677496 \\
+        16 &  0.008462 &  0.363384 \\
+        32 &  0.002133 &  0.177866 \\
+        64 &  0.000534 &  0.054880 \\
         \bottomrule
     \end{tabular}\hspace{4em}
     \begin{tabular}{ccc}
         \toprule
-        $N$  & $L_2$ & $H^1$\\
+        {$N$} &       $k=1$  &       $k=10$ \\
         \midrule
-        8	&0.65310	&3.11978\\
-        16	&0.65637	&3.13927\\
-        32	&0.65716	&3.14408\\
-        64	&0.65735	&3.14528\\
+        8  &  0.436116 &  25.511516 \\
+		16 &  0.218105 &  17.233579 \\
+		32 &  0.109047 &  10.543850 \\
+		64 &  0.054523 &   5.430879 \\
         \bottomrule
-    \end{tabular}\\[2em]
+    \end{tabular}\vspace{2em}
 
-    \subcaption{Errors for $k = 10$.}
-
+    \subcaption{$L_2$ error to the left, $H^1$ error to the right. Using second
+    order elements.}
+    
     \begin{tabular}{ccc}
         \toprule
-        $N$  & $L_2$ & $H^1$\\
+        {$N$} &        $k=1$  &        $k=10$ \\
         \midrule
-        8	 &0.74298	 &24.94148\\
-        16	 &0.50061	 &28.59929\\
-        32	 &0.76293	 &37.48450\\
-        64	 &0.91167	 &41.68281\\
+        8  &  0.000569 &  0.424446 \\
+        16 &  0.000069 &  0.088649 \\
+        32 &  0.000009 &  0.010174 \\
+        64 &  0.000001 &  0.001139 \\
         \bottomrule
     \end{tabular}\hspace{4em}
     \begin{tabular}{ccc}
         \toprule
-        $N$  & $L_2$ & $H^1$\\
+        {$N$} &       $k=1$  &       $k=10$ \\
         \midrule
-        8	&0.65808	&26.95569\\
-        16	&0.71521	&32.92179\\
-        32	&0.90010	&40.14219\\
-        64	&0.95659	&42.52210\\
+        8  &  0.033141 &  17.666883 \\
+        16 &  0.008387 &   6.717151 \\
+        32 &  0.002105 &   1.961954 \\
+        64 &  0.000527 &   0.517347 \\
         \bottomrule
     \end{tabular}
 
@@ -183,16 +185,28 @@ reveals a linear tendency.
 \begin{table}[htpb]
     \centering
     \caption{The slopes and coefficients for the error estimates given in
-    \cref{eq:errors_one}.}
+    \cref{eq:errors_one}, for both first and second order elements.}
     \label{tbl:polyfit_one}
+    \subcaption{First order elements.}
     \begin{tabular}{ccccc}
         \toprule
-        $k$ & $C_\alpha$ & $\alpha$ & $C_\beta$ & $\beta$\\
+        {$k$} &      $\alpha$ &   $C_\alpha$ &         $\beta$ &   $C_\beta$ \\
         \midrule
-        1 & & & & \\
-        10 & & & & \\
+		1  &  1.980242 &  2.029814 &  1.991671 &    2.090703 \\
+        10 &  1.190830 &  9.085196 &  1.705687 &  677.310236 \\
         \bottomrule
-    \end{tabular}
+    \end{tabular}\vspace{2em}
+
+    \subcaption{Second order elements.}
+    \begin{tabular}{ccccc}
+        \toprule
+        {$k$} &        $\alpha$ &   $C_\alpha$ &         $\beta$ &   $C_\beta$ \\
+        \midrule
+        1  &  1.980242 &  2.029814 &  0.999942 &    3.488758 \\
+        10 &  1.190830 &  9.085196 &  0.740449 &  126.848072 \\
+        \bottomrule
+\end{tabular}
+
 \end{table}
 
 \section*{Exercise 2}
@@ -201,7 +215,7 @@ reveals a linear tendency.
 We now consider another boundary value problem:
 \begin{BVP}
     \label{bvp:two}
-    On the two dimensional domain $\Omega \coloneqq (0, 1)^2$, consider the
+    On the two dimensional rectangular domain $\Omega \coloneqq (0, 1)^2$, consider the
     second order problem:
     \begin{align}
         \label{eq:problem_2}
@@ -240,7 +254,7 @@ with $n \in \mathbb{N}$. In particular, for $n = 0$, $C = 0$ so we have $g(y) = 
     \notag
     f''(x) - \frac{1}{\mu}f'(x) = 0
 \end{equation}
-which has solution $ f(x) = D e^{\frac{1}{\mu}x} + E$.  Enforcing the Dirichlet
+which has solution $ f(x) = D \exp(\frac{1}{\mu}x) + E$.  Enforcing the Dirichlet
 boundary conditions given in \cref{eq:d_one,eq:d_two} we determine $E = -1$ and
 $D = (e^{\frac{1}{\mu}} - 1)^{-1}$, as well as $B = 1$, yielding the final
 solution
@@ -248,4 +262,191 @@ solution
     \notag
     u(x, y) = f(x)g(y) = \frac{e^{\frac{1}{\mu}x} - 1}{e^{\frac{1}{\mu}} - 1}.
 \end{equation}
+
+\subsection*{Numerical error estimates}
+
+Again, we look at the numerical errors, both $L_2$ and $H^1$ using both first
+and second order Lagrange elements. We first examine what happens with the
+regular weak formulation, and then we see how the SUPG-method may improve our
+results. 
+
+
+\paragraph{Without SUPG:} Calling \texttt{exercise\_t\_b()} with the
+\texttt{SUPG}-flag set to false, we achieve the errors listed in
+\cref{tbl:errors_no_supg}. In all cases we see that the error convergence is
+slower for both norms for lower values of $\mu$.  Similarily to what was done
+in the previous boundary value problem, we estimate the values for $C_\alpha$,
+$C_\beta$, $\alpha$ and $\beta$, using \texttt{estimate\_error()}. The results
+can be seen in \cref{tbl:error_estimates_no_supg}.
+
+\paragraph{With SUPG:} Setting the SUPG-flag to true, we achieve the values
+listed in \cref{tbl:errors_supg} and \cref{tbl:error_estimates_supg}. As we see
+from the values, the SUPG-method is superior for low values of $\mu$ and
+coarse meshes.
+
+\begin{table}[htpb]
+    \centering
+    \caption{The $L_2$ and $H^1$ errors of the new boundary value problem,
+    using both first and second order elements for varying values of $\mu$.}
+    \label{tbl:errors_no_supg}
+    
+    \subcaption{$L_2$ error using first order elements.}
+    \begin{tabular}{cccc}
+        \toprule
+        {$N$} &         $\mu = 1.00$ &         $\mu = 0.10$ &       $\mu=0.01$ \\
+        \midrule
+        8  &  0.001402 &  0.023747 &  0.238965 \\
+        16 &  0.000351 &  0.006177 &  0.103990 \\
+        32 &  0.000088 &  0.001561 &  0.038142 \\
+        64 &  0.000022 &  0.000391 &  0.011255 \\
+        \bottomrule
+    \end{tabular}\vspace{2em}
+
+    \subcaption{$H^1$ error using first order elements.}
+    \begin{tabular}{cccc}
+        \toprule
+        {$N$} &         $\mu = 1.00$ &         $\mu = 0.10$ &       $\mu=0.01$ \\
+        \midrule
+        8  &  0.037522 &  0.769237 &  7.796998 \\
+        16 &  0.018766 &  0.398389 &  7.008644 \\
+        32 &  0.009383 &  0.201077 &  5.086480 \\
+        64 &  0.004692 &  0.100781 &  2.982329 \\
+        \bottomrule
+    \end{tabular}\vspace{2em}
+
+    \subcaption{$L_2$ error using second order elements.}
+    \begin{tabular}{cccc}
+        \toprule
+        {$N$} &         $\mu = 1.00$ &         $\mu = 0.10$ &       $\mu=0.01$ \\
+        \midrule
+        8  &  0.000012 &  0.002248 &  0.086719 \\
+        16 &  0.000001 &  0.000304 &  0.030833 \\
+        32 &  0.000000 &  0.000039 &  0.007649 \\
+        64 &  0.000000 &  0.000005 &  0.001329 \\
+        \bottomrule
+    \end{tabular}\vspace{2em}
+
+    \subcaption{$H^1$ error using second order elements.}
+    \begin{tabular}{cccc}
+        \toprule
+        {$N$} &         $\mu = 1.00$ &         $\mu = 0.10$ &       $\mu=0.01$ \\
+        \midrule
+        8  &  0.000597 &  0.118721 &  5.633591 \\
+        16 &  0.000150 &  0.031667 &  3.801062 \\
+        32 &  0.000038 &  0.008068 &  1.736641 \\
+        64 &  0.000009 &  0.002028 &  0.569069 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[htpb]
+    \centering
+    \caption{Error estimates for both first and second order Lagrangian
+    elements, for varying values of $\mu$.}
+    \label{tbl:error_estimates_no_supg}
+    
+    \subcaption{First order elements.}
+    \begin{tabular}{ccccc}
+        \toprule
+        {$\mu$} &    $\alpha$ &    $C_\alpha$ &      $\beta$ &    $C_\beta$ \\
+        \midrule
+        1.00 &  1.999763 &  0.089724 &  0.999856 &   0.300108 \\
+        0.10 &  1.975224 &  1.458317 &  0.978303 &   5.936369 \\
+        0.01 &  1.467166 &  5.552503 &  0.462191 &  22.684702 \\
+        \bottomrule
+    \end{tabular}\vspace{2em}
+    \subcaption{Second order elements.}
+    \begin{tabular}{ccccc}
+        \toprule
+        {$\mu$} &    $\alpha$ &    $C_\alpha$ &      $\beta$ &    $C_\beta$ \\
+        \midrule
+        1.00 &  2.994029 &  0.005828 &  1.994016 &   0.037794 \\
+        0.10 &  2.950373 &  1.059090 &  1.958612 &   7.086985 \\
+        0.01 &  2.009556 &  6.772810 &  1.105224 &  67.385481 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[htpb]
+    \centering
+    \caption{The $L_2$ and $H^1$ errors of the new boundary value problem,
+    using both first and second order elements for varying values of $\mu$, using the SUPG-method.}
+    \label{tbl:errors_supg}
+    
+    \subcaption{$L_2$ error using first order elements.}
+    \begin{tabular}{cccc}
+        \toprule
+        {$N$} &         $\mu = 1.00$ &         $\mu = 0.10$ &       $\mu=0.01$ \\
+        \midrule
+        8  &  0.008173 &  0.116845 &  0.200561 \\
+        16 &  0.003970 &  0.063322 &  0.131785 \\
+        32 &  0.001956 &  0.033130 &  0.079917 \\
+        64 &  0.000971 &  0.016982 &  0.045471 \\
+        \bottomrule
+    \end{tabular}\vspace{2em}
+
+    \subcaption{$H^1$ error using first order elements.}
+    \begin{tabular}{cccc}
+        \toprule
+        {$N$} &         $\mu = 1.00$ &         $\mu = 0.10$ &       $\mu=0.01$ \\
+        \midrule
+        8  &  0.044519 &  1.008406 &  5.434785 \\
+        16 &  0.022577 &  0.622238 &  5.792799 \\
+        32 &  0.011370 &  0.351801 &  4.973273 \\
+        64 &  0.005705 &  0.188202 &  3.626298 \\
+        \bottomrule
+    \end{tabular}\vspace{2em}
+
+    \subcaption{$L_2$ error using second order elements.}
+    \begin{tabular}{cccc}
+        \toprule
+        {$N$} &         $\mu = 1.00$ &         $\mu = 0.10$ &       $\mu=0.01$ \\
+        \midrule
+        8  &  0.008173 &  0.116845 &  0.200561 \\
+        16 &  0.003970 &  0.063322 &  0.131785 \\
+        32 &  0.001956 &  0.033130 &  0.079917 \\
+        64 &  0.000971 &  0.016982 &  0.045471 \\
+        \bottomrule
+    \end{tabular}\vspace{2em}
+
+    \subcaption{$H^1$ error using second order elements.}
+    \begin{tabular}{cccc}
+        \toprule
+        {$N$} &         $\mu = 1.00$ &         $\mu = 0.10$ &       $\mu=0.01$ \\
+        \midrule
+        8  &  0.044519 &  1.008406 &  5.434785 \\
+        16 &  0.022577 &  0.622238 &  5.792799 \\
+        32 &  0.011370 &  0.351801 &  4.973273 \\
+        64 &  0.005705 &  0.188202 &  3.626298 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[htpb]
+    \centering
+    \caption{Error estimates for both first and second order Lagrangian
+    elements, for varying values of $\mu$, using the SUPG-method.}
+    \label{tbl:error_estimates_supg}
+    
+    \subcaption{First order elements.}
+    \begin{tabular}{ccccc}
+        \toprule
+        {$\mu$} &    $\alpha$ &    $C_\alpha$ &      $\beta$ &    $C_\beta$ \\
+        \midrule
+        1.00 &  1.024002 &  0.068333 &  0.988169 &  0.348477 \\
+        0.10 &  0.928208 &  0.817010 &  0.808787 &  5.626513 \\
+        0.01 &  0.714465 &  0.919312 &  0.197124 &  9.027664 \\
+        \bottomrule
+    \end{tabular}\vspace{2em}
+    \subcaption{Second order elements.}
+    \begin{tabular}{ccccc}
+        \toprule
+        {$\mu$} &    $\alpha$ &    $C_\alpha$ &      $\beta$ &    $C_\beta$ \\
+        \midrule
+        1.00 &  -5.295546 &  0.000071 &  -6.289647 &  0.000438 \\
+        0.10 &  -7.960629 &  0.000000 &  -9.286106 &  0.000000 \\
+        0.01 &   0.609334 &  0.719865 &  -0.245373 &  3.387804 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 \end{document}
