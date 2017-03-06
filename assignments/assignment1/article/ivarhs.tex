@@ -249,7 +249,8 @@ determine $g$ to be constant (with respect to $x$) equal to
     \notag
     g(y) = B\cos(n\pi y), 
 \end{equation}
-with $n \in \mathbb{N}$. In particular, for $n = 0$, $C = 0$ so we have $g(y) = B$. Furthermore, with this choice of $n$, \cref{eq:f} reduces to
+with $n \in \mathbb{N}$. In particular, for $n = 0$, $C = 0$ so we have $g(y) =
+B$. Furthermore, with this choice of $n$, \cref{eq:f} reduces to
 \begin{equation}
     \notag
     f''(x) - \frac{1}{\mu}f'(x) = 0
@@ -262,6 +263,19 @@ solution
     \notag
     u(x, y) = f(x)g(y) = \frac{e^{\frac{1}{\mu}x} - 1}{e^{\frac{1}{\mu}} - 1}.
 \end{equation}
+
+\subsection*{Streamline diffusion / Petrov-Galerkin.}
+\label{sub:streamline_diffusion_petrov_galerkin_}
+
+The parameter $\mu$ causes problems for low values of $\mu$, as later can be
+seen in the numerical errors. This can be remedied by introducing the test
+function
+\begin{equation}
+    \notag
+    w = v + \beta \nabla v.
+\end{equation}
+Setting $\beta = h / 2$, where $h$ is the size of the discretized mesh,
+corresponds to the upwinding scheme.
 
 \subsection*{Numerical error estimates}
 
