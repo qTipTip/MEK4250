@@ -1,0 +1,195 @@
+\documentclass[twocolumn, article]{memoir}
+
+\setlength{\parindent}{0em}
+\setlength{\parskip}{0.5cm plus4mm minus3mm}
+\usepackage[]{times} 
+\usepackage[]{newtxmath} 
+
+\usepackage[]{amsmath} 
+\usepackage[]{amsthm} 
+\usepackage[]{amssymb} 
+\usepackage[]{mathtools} 
+
+\usepackage[]{enumitem} 
+\usepackage[]{booktabs} 
+
+
+\usepackage[]{microtype} 
+
+\usepackage[]{hyperref} 
+\usepackage[capitalize, noabbrev]{cleveref} 
+
+\title{\textsc{Mandatory assignment \\ Finite Element Method in Computational
+Mechanics \\ MEK4250}}
+\author{Ivar Stangeby}
+\begin{document}
+\maketitle
+
+\chapter*{Exercise 7.2: Stokes problem}
+
+\subsection{Problem statement and strong formulation}    
+
+Let the fluid domain \(\Omega\) be bounded in \(\mathbb{R}^n\) with a
+smooth boundary. Denote by \( u \colon \Omega \to \mathbb{R} ^n \) the
+fluid velocity, and by \( p \colon \Omega \to \mathbb{R} \) the fluid
+pressure. Furthermore, assume that the domain boundary \( \partial\Omega \)
+is partitioned into the Dirichlet boundary, and the Neumann boundary,
+denoted by \( \partial\Omega_D \) and \( \partial\Omega_N \), respectively.
+In its strong form, the Stokes problem reads
+\begin{align*}
+    -\Delta u + \nabla p &= f, & &\text{in}\quad \Omega;\\
+    \nabla \cdot u &= 0, & &\text{in}\quad \Omega;\\
+    u &= g, & &\text{on} \quad \partial \Omega_D;\\
+    \frac{\partial u}{\partial n} - pn &= h,& &\text{on} \quad \partial\Omega_N.
+\end{align*}
+
+\subsection{Well posedness}
+\label{sec:well_posedness}
+
+We wish to show the well posedness of the weak formulation of Stokes problem.
+In our case, we deal with the sobolev space \( H^1_0(\Omega) \) for the fluid \( u \),
+and the \( L^2(\Omega) \) space for the pressure \( p \).  This, involves showing that
+the following conditions are met:
+\begin{enumerate}[wide, label=\roman*)]
+    \item \begin{equation*}
+            a(u, v) \leq C_1 \|u\|_{H^1} \|v\|_{L^2},
+    \end{equation*}
+    \item \begin{equation*}
+            b(p, v) \leq C_2 \|p\|_{L^2} \|v\|_{H^1},
+    \end{equation*}
+    \item \begin{equation*}
+            a(u, u) \geq C_3 \|u\|_{H^1}^2,
+    \end{equation*}
+\end{enumerate}
+for all \( u, v \in H^1_0(\Omega) \) and all \( p \in L^2 \).
+Recall that the bilinear forms in question are given by
+\begin{align*}
+    a(u, v) &= \int_\Omega \nabla u : \nabla v \, \mathrm{d}x,\\
+    b(p, v) &= \int_\Omega p \nabla \cdot v \, \mathrm{d}x
+\end{align*}
+where \( \boldsymbol{A} : \boldsymbol{B} = \sum_{i,j} A_{ij}B_{ij} \) denotes
+the Frobenius inner product.
+
+\begin{enumerate}[wide, label=\roman*)]
+    \item Applying the Cauchy-Schwartz inequality on \( a \) yields the following:
+\begin{align*}
+    a(u, v) &= \int_\Omega \nabla u : \nabla v \, \mathrm{d}x \\
+            &= \langle \nabla u \mid \nabla v \rangle \leq |u|_{H^1}|v|_{H^1}.
+\end{align*}
+Noting that the seminorm on \( H^1_0 \)is never larger than the full norm on \(
+H^1_0\), so the condition holds. 
+\item Applying Cauchy-Schwartz on \( b \) yields
+\begin{equation*}
+    b(p, v) \leq \| p \|_{L^2} \| \nabla \cdot v\|_{L^2}.
+\end{equation*}
+To this end, it suffices to show that \( \|\nabla \cdot v \|_{L^2} \leq \| v
+\|_{H^1} \). For the left hand side, we have that
+\begin{equation*}
+    \|\nabla \cdot v \|_{L^2} \leq \left( \int_\Omega \sum^{n}_{i=1} \left( \frac{\partial v_i}{\partial x_i} \right)^2 \right)^{1/2}.
+\end{equation*}
+For the right hand side, firstly we have that
+\((\nabla v)^2 = \sum^{n}_{i=1} \sum^{n}_{j=1} \left( \partial v_j / \partial
+x_i\right)^2 \). Note that this has a striking resemblance to \( \nabla \cdot v
+\), however, with a lot more positive terms. We can therefore conclude outright that
+\begin{equation*}
+    b(p, v) \leq \|p\|_{L^2}\|v\|_{H^1}.
+\end{equation*}
+\item Finally, we consider \(a(u, u)\). Firstly, we have that \(\| u \|_{H^1}^2 = \|u
+\|_{L^2}^2 + |u|_{H_1}^2\). By applying Poincar\'e, we know that this has to be
+less than or equal to \((C^2 + 1)|u|_{H^1}^2\). Writing this out, we have that
+\begin{equation*}
+    \|u\|^2_{H^1} \leq (C^2 + 1)\int_\Omega (\nabla u)^2 \, \mathrm{d}x.
+\end{equation*}
+Note that \( (\nabla u)^2 = \nabla u : \nabla u \). Indeed, 
+\begin{equation*}
+    (\nabla u)^2 = \sum_{j=1}^n \sum_{i=1}^n \left(\frac{\partial u_i}{\partial x_j}\right)^2
+    \, = \nabla u : \nabla u.
+\end{equation*}
+Consequently, we have that \(\|u\|^2_{H^1} \leq (C^2 + 1) a(u, u)\).
+Multiplying each side of the equation by \(D \coloneqq 1 / (C^2 + 1)\) we get
+the bound we wanted.
+\end{enumerate}
+
+\chapter*{Exercise 7.6: Approximation order in Stokes problem}
+\label{cha:exercise_7_6_approximation_order_in_poiseuille_flow}
+
+In this exercise we solve Stokes problem as above, with the known solutions:
+\begin{align*}
+    u &= (\sin(\pi y), \cos(\pi x)), \\
+    p &= -\sin(2 \pi x).
+\end{align*}
+It then follows that the source term is given as:
+\begin{equation}
+    \notag
+    f(x) = (\pi^2 \sin(\pi y) - 2 \pi \cos(2 \pi x), \pi^2 \cos(\pi x)).
+\end{equation}
+Ideally, we obtain optimal convergence rate, given by
+\begin{equation}
+    \notag
+    \|u - u_h\|_{H^1} + \| p - p_h\|_{L^2} \leq Ch^k\|u\|_{H^{k+1}} + Dh^{\ell + 1} \| p \|_{H^{\ell + 1}},
+\end{equation}
+where \( k \) and \( \ell \) are the polynomial degree of the velocity and
+pressure.  In order to obtain this optimal convergence, we need to determine
+the finite element pairs \( V_h \) and \( Q_h\) for the velocity and pressure,
+respectively, that satisfy the Babuska--Brezzi condition:
+\begin{equation}
+    \label{eq:bb_cond}
+    \sup_{v_h \in V_{h, g}} \frac{(p_h, \nabla \cdot v_h)}{\|v_h\|_{H^1}} \geq \beta
+    \|p_h\|_{L^{2}} > 0, 
+\end{equation}
+for all \(p_h \in Q_h\).
+Elements satisfying \cref{eq:bb_cond} include the following:
+\begin{description}
+    \item[Taylor-Hood:]
+        Quadratic for velocity, and linear for the pressure.
+    \item[Crouzeix-Raviart:]
+        Linear in velocity, constant in pressure.
+    \item[Mini element:]
+        Linear in both velocity and pressure, and a cubic bubble function is
+        added to the velocity element in order to satisfy \cref{eq:bb_cond}.
+\end{description}
+
+In this exercise, we wish to examine whether the approximation is of the
+expected order for the \(P_4\) -- \(P_3\), \(P_4\)--\(P_2\), \(P_3\) --
+\(P_2\), and \(P_3\) -- \(P_1\) elements. We examine these in turn.  If the
+convergence is optimal, we would expect the following:
+\begin{description}[wide]
+    \item[\(P_4\)--\(P_3\):] 
+    With \( k = 4 \) and \(\ell = 3\), we would expect the error to run as \(
+    \mathcal{O}(h^4) \).
+
+    \item[\(P_4\)--\(P_2\):]
+    With \( k = 4 \) and \(\ell = 2\), we would expect the error to run as \(
+    \mathcal{O}(h^3) \).
+
+    \item[\(P_3\)--\(P_2\):]
+    With \( k = 3 \) and \(\ell = 2\), we would expect the error to run as \(
+    \mathcal{O}(h^3) \).
+
+    \item[\(P_3\)--\(P_1\):]
+    With \( k = 3 \) and \(\ell = 2\), we would expect the error to run as \(
+    \mathcal{O}(h^2) \).
+\end{description}
+This is verified by computations, as can be seen in
+\cref{tab:approximation_order_7_6}. 
+
+\begin{table}[htpb]
+    \centering
+    \caption{The convergence rate of the error is given as \( \alpha \), and
+        the error constant is \( C \) in the error estimate \[ \| u -
+        u_h\|_{H^1} + \| p - p_h \|_{L^2} \leq Ch^\alpha.\] These were computed
+        using a linear polynomial fit of the computed errors as \( h \)
+        decrease. The convergence rates seem to agree with predictions.}
+    \label{tab:approximation_order_7_6}
+    \begin{tabular}{lcc}
+    \toprule
+    {Element} & \( \alpha \) & \(C\) \\
+    \midrule
+    \(P_4\) -- \(P_3\) &          4.04615 &    0.344373 \\
+    \(P_4\) -- \(P_2\) &          2.92402 &     1.47968 \\
+    \(P_3\) -- \(P_2\) &          2.91623 &      1.3616 \\
+    \(P_3\) -- \(P_1\) &          2.02219 &     2.26125 \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+\end{document}
