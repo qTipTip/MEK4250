@@ -1,54 +1,19 @@
-\documentclass[oneside, a4paper, 12pt, report]{memoir}
+\documentclass[oneside, 12pt]{memoir}
 
-\usepackage{amsmath}
-\usepackage{amssymb} 
-\usepackage{amsthm} 
+\usepackage{preamble}
 
-\usepackage{thmtools} 
-\usepackage{mathtools} 
-\usepackage{microtype} 
-
-\usepackage{enumerate} 
-
-% TOC STYLE
-\usepackage[tocfullflat]{tocstyle}
-\usetocstyle{standard}
-\makeatletter
-\renewcommand\tableofcontents{%
-  \null\hfill\textsc{\Large\contentsname}\hfill\null\par
-  \@mkboth{\MakeUppercase\contentsname}{\MakeUppercase\contentsname}%
-  \@starttoc{toc}%
-}
-\makeatother
-
-\usepackage{hyperref} 
-\usepackage[noabbrev, capitalize]{cleveref} 
-
-
-\linespread{1.25}
-
-\newcommand{\R}{\mathbb{R}}
-\newcommand{\A}{\boldsymbol{A}}
-\renewcommand{\c}{\boldsymbol{c}}
-\renewcommand{\b}{\boldsymbol{b}}
-\DeclareMathOperator{\grad}{\nabla}
-\DeclareMathOperator{\lapl}{\Delta}
-\newcommand{\test}{\hat{V}}
-\newcommand{\trial}{V}
-\DeclareMathOperator{\curl}{\nabla \times}
-\let\div\relax
-\DeclareMathOperator{\div}{\nabla \cdot}
-
-\declaretheorem[mdframed={},style=definition, name=Problem, numbered=no]{problem_text}
-
-\title{\textsc{Exam Sheet \\ MEK4250}}
+\title{\textsc{Topics in Computational Mechanics \\ MEK4250}}
 \author{Ivar Stangeby}
 
 \begin{document}
 
 \maketitle
-\tableofcontents
 
-\input{problem_1}
+\input{chapters/abstract}
+
+\tableofcontents*
+
+\input{chapters/problem_1}
+\input{chapters/problem_2}
 
 \end{document}

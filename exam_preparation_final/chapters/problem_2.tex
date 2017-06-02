@@ -1,0 +1,259 @@
+\chapter[Convection--Diffusion]{Discretization Of Convection-Diffusion}
+
+\begin{problem_text}
+   Derive a proper variational formulation of the convection-diffusion problem.
+   Derive sufficient conditions that make the problem well posed.  Discuss why
+   oscillations appear for standard Galerkin methods and show how Streamline
+   diffusion / Petrov--Galerkin methods resolve these problems. Discuss also
+   approximation properties in light of Cea’s lemma.
+\end{problem_text}
+
+\section{Finite Element Formulation}
+
+The convection diffusion problem is given as:
+\begin{align}
+    -\mu\lapl u + \omega \cdot \grad u &= f \text{ in } \Omega, \\
+                             u &= g \text{ on } \Gamma_D.
+\end{align}
+Here \( u \) is the unknown, \( \mu \) is the diffusivity, and \( \omega \) is
+a velocity.  We associate to this problem the bilinear operator \( a \colon
+\trial \times \test \to \R \) and the linear operator \( L \colon \test \to \R
+\) given by
+\begin{align}
+    a(u, v) &\coloneqq \langle -\mu\lapl u, v \rangle + \langle \omega\cdot
+    \grad u, v \rangle;\\
+    L(v) &\coloneqq \langle f, v \rangle.
+\end{align}
+
+\subsection{Weak Formulation}
+
+We can now consider the \emph{weak formulation} of the Convection-Diffusion
+problem. That is: Find \( u \) in \( \trial \) such that:
+\begin{equation}
+    a(u, v) = L(v) \text{ for all } v \in \test.
+\end{equation}
+Again, we need to later properly determine the spaces \( \trial \) and \( \test
+\), however, as always, we require \( v = 0 \) on \( \Gamma_D \) for all \( v
+\in \test \).  In order to get rid of the Laplacian term, we employ the
+Gauss--Green lemma, yielding:
+\begin{align}
+a(u, v) &= \langle \mu \grad u, \grad v \rangle - \underbrace{\int_{\Gamma_D}
+\mu \frac{\partial u}{\partial x} v \cdot n \, dS}_{\mathclap{\text{This is zero due to
+\( v \in \test\)}}} + \langle \omega \cdot \grad u, v \rangle \\
+&= \langle \mu \grad u, \grad v \rangle +  \langle \omega \cdot \grad u, v \rangle.
+\end{align}
+We again only require one derivative for \( u \) and \( v \) so we let
+\begin{align}
+    \trial = H^1_g(\Omega) \subseteq H^1(\Omega), \\
+    \test = H^1_0(\Omega) \subseteq H^1(\Omega),
+\end{align}
+as in the Poisson problem. We delay the finite element formulation until after
+the Streamline diffusion / Petrov--Galerkin method has been discussed.
+
+We now need to verify that this abstract problem is well posed.
+
+\section{Well Posedness of Weak Formulation}
+
+While our problem is not \emph{homogeneous} in the Dirichlet conditions, we can
+reduce it to a homogeneous problem. The reason for doing this is to employ the
+Poincar\'e inequality, which only holds for \( H^1_0 (\Omega) \). Again, the
+Lax--Milgram theorem gives sufficient conditions for the problem being well
+posed. We have two cases for this specific problem:
+\begin{inparaenum}[(i)]
+    \item Incompressible flow, \( \div \omega = 0\); or
+    \item compressible flow, \( \div \omega \neq 0\).
+\end{inparaenum}
+We deal with these two cases separately.
+Furthermore, for simplicity, we define
+\begin{align}
+    b(u, v) &\coloneqq \langle \mu \grad u, \grad v \rangle,\\
+    c_\omega(u, v) &\coloneqq \langle \omega \cdot \grad u, v \rangle,
+\end{align}
+and note that \(a(u, v) = b(u, v) + c_\omega(u, v)\).
+
+\subsection{Incompressible Flow}
+\label{sub:incompressible_flow}
+
+For the incompressible case, we have \( \div \omega = 0 \). In addition to this
+assumption, we also assume that the flow velocities are bounded, i.e., \(D_\omega \coloneqq \|
+\omega \|_\infty < \infty \). It can then be shown that the bilinear form \(
+c_\omega(u, v) \) is \emph{skew-symmetric}, that is
+\begin{equation}
+    c_\omega(u, v) = - c_\omega(v, u).
+\end{equation}
+We now show that the conditions in the Lax--Milgram theorem is satisfied.
+
+\paragraph{Coercivity of \( a \):}
+Using the skew-symmetric property of \( c_\omega(u, v) \), we get that \(
+c_\omega(u, u) = -c_\omega(u, u)\) which implies that \( c_\omega(u, u) = 0 \).
+Therefore, we have
+    \begin{equation}
+        a(u, u) = b(u, u) + c_\omega(u, u) = b(u, u).
+    \end{equation}
+    So, \(a\) is coercive, as 
+    \begin{equation}
+        b(u, u) = \mu\int_\Omega (\grad u)^2 \, d\Omega \geq
+        \mu\left(\int_\Omega \grad u \, d\Omega\right)^2 = \mu|u|_1^2.
+    \end{equation}
+
+\paragraph{Boundedness of \(a\):} 
+
+Applying the Cauchy--Schwartz inequality we have
+\begin{align}
+    a(u, v) &= \langle \mu\grad u, \grad v \rangle + \langle \omega \cdot \grad u, v \rangle \\
+            &\leq |\mu|\|\grad u\|_0 \|\grad v\|_0 + \|\omega \cdot \grad u \|_0 \| v \|_0
+    \intertext{Using the assumption of bounded flow velocities; and
+    that the problem has been reduced to homogeneous Dirichlet
+    conditions --- so we can apply the Poincar\'e inequality with domain dependent factor \( C_\Omega\) --- we get:}
+    &\leq |\mu| |u|_1 |v|_1 + D_\omega |u|_1 \| v \|_1 \\
+    &\leq(\mu + D_\omega C_\Omega) |u|_1|v|_1.
+\end{align}
+Consequently, \(a\) is bounded.
+
+\paragraph{Boundedness of \( L \):}
+
+Applying the Cauchy--Schwartz inequality we get
+\begin{equation}
+    L(u, v) = \langle f, v \rangle \leq \| f \|_0 \| v\|_0 \leq \|f\|_1 \|v\|_1.
+\end{equation}
+
+The Lax--Milgram conditions are satisfied, hence the weak formulation of the
+convection-diffusion problem is well posed. In addition, the solution \( u \)
+satisfies
+\begin{equation}
+    \| u \|_1 \leq \frac{\mu + D_\omega C_\Omega}{\mu}\|f\|_{-1}.
+\end{equation}
+
+\subsection{Compressible Flow}
+\label{sub:compressible_flow}
+
+In the case where the flow is compressible, i.e., \( \div \omega \neq 0 \), we
+need to put some extra restrictions on the flow velocities \( \omega \) in
+order to ensure well posedness. This is because in the general case, we have \(
+c_\omega(u, u) \neq 0 \). The coercivity of \(a \) was the only property where
+we assumed incompressibility, hence the two other properties remain the same.
+
+\paragraph{Coercivity of \(a\) with compressible fluids:}
+
+If \( D_\omega C_\Omega \leq B\mu \) where \( B < 1 \) we obtain
+\begin{align}
+    a(u, u) &= \langle \mu \grad u, \grad u \rangle + \langle \omega \cdot \grad u, u \rangle \\
+            &\geq \mu (1 - D_\omega)\|u\|_1^2,
+\end{align}
+however, it is not clear to me exactly how this result is obtained.
+
+\section{Oscillations in the Solution}
+\label{sec:oscillations_in_the_solution}
+
+Assume for now we are working with the one dimensional convection diffusion
+problem on a mesh with \( h \) denoting the largest mesh element. Solving this
+with first order Lagrangian elements corresponds to the central finite
+difference scheme
+\begin{equation}
+    -\frac{\mu}{h^2} [u_{i+1} - 2u_i + u_{i-1}] - \frac{\omega}{2h} [u_{i+1} - u_{i-1}] = 0
+\end{equation}
+for \( i = 1, \ldots, N-1 \), where \( N \) denotes the number of elements.
+Assume the boundary conditions are \( u_0 = 0 \) and \( u_N = 1\). Examining
+the above expression we see that in the limit \( \mu \to 0 \) that the scheme
+reduces to
+\begin{equation}
+    \frac{\omega}{2h}[u_{i+1} - u_{i - 1}] = 0
+\end{equation}
+for \(i = 1, \dots, N\) with \(u_0 = 0\) and \(u_N = 1 \). Here we see that \(
+u_{i+1} \) is coupled to \( u_{i-1} \) but not \( u_i \). This means that we
+may get a numerical solution consisting of two sequences \((u_{2i})_i\) and
+\((u_{2i+1})_i\) that have no relation to each other. This may very well cause
+oscillations in the solution.
+
+\subsection{Finite Difference Upwinding}
+
+One remedy is to introduce the concept of \emph{upwinding}. Instead of using a
+central finite difference scheme as above, one employs either a forward or a backward
+first order scheme, based on the velocity \( \omega\). That is:
+\begin{align}
+    u'(x_i) \approx \frac{1}{h}[u_{i+1} - u_i] \text{ if } \omega < 0, \\
+    u'(x_i) \approx \frac{1}{h}[u_{i} - u_{i-1}] \text{ if } \omega > 0.
+\end{align}
+This upwinding scheme can be seen as a special case of \emph{artificial
+diffusion}, where one solves the ``artificial'' problem
+\begin{equation}
+    -(\mu + \varepsilon)\lapl u + \omega \cdot \grad u = f,
+\end{equation}
+with \( \varepsilon > 0 \) some arbitrary real number. In particular, choosing
+\( \varepsilon = h / 2 \) one regains the upwinding scheme mentioned above.
+
+The fact that the finite element method coincides with the finite difference
+method in the case of one dimensional convection diffusion, and first order
+Lagrangian elements is not something that holds in general. Our question in the
+following is then: How do we implement artificial diffusion in our finite
+element method? This leads us to the Streamline diffusion / Petrov--Galerkin
+methods.
+
+\section{Streamline Diffusion / Petrov--Galerkin}
+\label{sec:streamline_diffusion_petrov_galerkin}
+
+Our goal here is to add artificial in a consistent way that does not changes
+the solution as \( h \) tends to zero. It turns out that naively adding
+artificial diffusion to our current finite element formulation does not give us
+what we want. We first examine why. 
+
+\subsection{Naive Artificial Diffusion}
+\label{sub:naive_artificial_diffusion}
+
+Recall that our problem reads: Find \( u \in \trial\) such that
+\begin{align}
+    \langle \mu \grad u, \grad v \rangle + \langle \omega \cdot \grad u, v
+    \rangle = \langle f, v \rangle \text{ for all } v \in \test.
+\end{align}
+Replacing \( \mu \) by \( \mu + \varepsilon \) yields a new bilinear operator \( \tilde{a} \):
+\begin{equation}
+    \tilde{a}(u, v) \coloneqq \langle \mu \grad u, \grad v \rangle + \langle
+    \varepsilon \grad u, \grad v \rangle + \langle \omega \cdot \grad u, v
+\rangle.
+\end{equation}
+This can be written succinctly as 
+\begin{equation}
+    \tilde{a}(u, v) = a(u, v) + \varepsilon \langle \grad u, \grad v\rangle.
+\end{equation}
+If we let \( \varepsilon = h / 2 \) we see that in the limit as \( h \to 0 \),
+we have \( \tilde{a}(u, v) \to a(u, v) \), and the scheme is consistent in this
+sense. However, it is not \emph{strongly consistent} as it does not satisfy
+the Galerkin-orthogonality as \( a \) does: 
+\begin{equation}
+    a(u - u_h, v) = 0 \text{ for all } v \in \test_h,
+\end{equation}
+namely that this equation is zero for \emph{all} discretizations, and not just
+in the limit.
+
+We can however make the scheme strongly consistent by employing different
+spaces for the test functions and the trial functions.
+
+\subsection{Petrov--Galerkin method}
+
+The only difference between the Petrov--Galerkin and the standard Galerkin
+formulation is that the trial and test functions differ. In the standard
+Galerkin method, the same basis is used for both test and trial functions.  In
+the Petrov-Galerkin method the test functions are tailored to ensure a
+strongly consistent scheme.
+
+\subsection{Finite Element Formulation}
+\label{sub:finite_element_formulation}
+
+Letting \( \test_h\) and \(\trial_h\) denote the finite dimensional subspaces
+of \( \test \) and \( \trial \) respectively. Assume these are given by bases
+\( (\psi_j)_{i=1}^M \) and \( (\varphi_i)_{i=1}^N \).  The finite element
+formulation then gives rise to a linear system
+\begin{equation}
+    \A \c = \b,
+\end{equation}
+where the matrix elements are given as
+\begin{align}
+    A_{i, j} &= \langle \mu \grad \varphi_i , \grad \psi_j \rangle + \langle \omega \cdot \grad \varphi_i, \psi_j \rangle, \\
+    b_j &= \langle f, \psi_j \rangle.
+\end{align}
+How do we choose the basis \( (\psi_j)_{j=1}^M \) such that we can add
+diffusion consistently? It turns out that setting
+\begin{equation}
+    \psi_j \coloneqq \varphi_j + \varepsilon\omega \cdot \grad \varphi_j
+\end{equation}
+does the trick.

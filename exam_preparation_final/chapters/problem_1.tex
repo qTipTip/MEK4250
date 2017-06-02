@@ -3,9 +3,9 @@
 
 \begin{problem_text}
     Formulate a finite element method for the Poisson problem with a variable
-    coefficient \( \kappa \colon \Omega \to \R^{d\times d}\). Show that
-    Lax-Milgram's theorem is satisfied. Consider extensions to e.g. the
-    convection-diffusion and the elasticity equation. Derivate \emph{a priori}
+    coefficient \( \kappa \colon \Omega \to \R^{d\times d}\). Show that the
+    Lax--Milgram theorem is satisfied. Consider extensions to e.g. the
+    convection-diffusion and the elasticity equation. Derive \emph{a priori}
     error estimates for the finite element method in the energy norm. Describe
     how to perform an estimation of convergence rates.
 \end{problem_text}
@@ -14,9 +14,9 @@
 
 The Poisson problem is formulated as:
 \begin{align}
-    -\div (\kappa \grad u) = f \text { in } \Omega,\\
-    u = u_0 \text{ on } \Gamma_D,\\
-    -\kappa \grad u \cdot n = g \text{ on } \Gamma_N.
+    -\div (\kappa \grad u) &= f \text { in } \Omega,\\
+    u &= u_0 \text{ on } \Gamma_D,\\
+    -\kappa \grad u \cdot n &= g \text{ on } \Gamma_N.
 \end{align}
 Here \( u \) denotes the unknown field. We associate to this strong formulation
 of the problem, the bilinear operator \( a\colon \test \times \trial \to \R\),
@@ -37,7 +37,7 @@ problem, which is: Find \( u \in \trial \) such that
 We need to place some requirements to the spaces \(\trial \) and \(\test\) in
 order to satisfy the boundary conditions. However, one requirement we impose
 immediately is that \(v = 0\) on \( \Gamma_D \) for all \( v \in \test\).  What
-these spaces should be is not immediate from the current formulation. Throught
+these spaces should be is not immediate from the current formulation. Throughout
 the following, \( \langle \cdot, \cdot \rangle \) denotes the \( L^2 \) inner
 product on \( V \). Expanding \( a \) using among others the Gauss--Green
 lemma yields:
@@ -45,7 +45,7 @@ lemma yields:
     a(u, v) &= \langle -\div(\kappa \grad u), v \rangle = -\langle \kappa \lapl u, v \rangle\\
             &= \langle \kappa \grad u, \grad v \rangle - \int_{\partial\Omega} - v \kappa  \frac{\partial u}{\partial x}  \cdot n \, dS.
 \end{align}
-The boundary integral above can be rewritten using the partioning of the boundary:
+The boundary integral above can be rewritten using the partitioning of the boundary:
 \begin{equation}
     \int_{\partial\Omega} -v \kappa  \frac{\partial u}{\partial x}  \cdot n \, dS =
     -\int_{\Gamma_D} v \kappa \frac{\partial u}{\partial x} \cdot n \, dS + \int_{\Gamma_N} -v \kappa \frac{\partial u}{\partial x} \cdot n \, dS.
@@ -103,7 +103,7 @@ where the matrix entries are determined as follows:
 \label{sec:well_posedness_of_weak_formulation}
 
 In this section we discuss whether the problem in its weak formulation is
-infact well posed. Does there exist a solution, and if it does, is this
+in fact well posed. Does there exist a solution, and if it does, is this
 solution unique? The Lax--Milgram theorem provides sufficient conditions for
 this problem to be well posed, and hence the solution to exist and be unique.
 We verify the three properties in turn:
@@ -126,9 +126,9 @@ We verify the three properties in turn:
         \begin{equation}
             \| u \|_1^2 \overset{\text{def}}{=} \| u \|_0^2 + \| \grad u \|_0^2
             \underbrace{\leq}_{\mathclap{\text{Using the Poincar\'e inequality
-            on } H^1_0(\Omega)}} (C^2 + 1) \| \grad u \|_0^2
+            on } H^1_0(\Omega)}} \geq (C^2 + 1) \| \grad u \|_0^2
         \end{equation}
-        This shows that \( a(u, u) \leq (C^2 + 1)^{-1} \| u \|_1^2 \) in the
+        This shows that \( a(u, u) \ (C^2 + 1)^{-1} \| u \|_1^2 \) in the
         case where \( \kappa = 1 \) identically. 
 
     \item[Boundedness of \( L \):]
@@ -148,9 +148,12 @@ We verify the three properties in turn:
         This proves the boundedness of \( L \).
 \end{description}
 This means that the weak formulation of the Poisson problem satisfies the
-Lax--Milgram theorem, hence is well posed.
+Lax--Milgram theorem, hence is well posed. In addition, the solution \( u \) satisfies
+\begin{equation}
+    \| u \|_1 \leq \frac{(C^2 + 1)^{-1}}{\|\kappa\|}\| f \|_{-1}.
+\end{equation}
 
-\section{Extensions to other problems}
+\section{Extensions to Other Problems}
 \label{sec:extensions_to_other_problems}
 
 Recall that the equation of linear elasticity is given as
@@ -192,7 +195,7 @@ to a Poisson problem of the form
 \end{equation}
 for some source term \( f \).
 
-\section{A priori error estimates}
+\section{A Priori Error Estimates}
 \label{sec:a_priori_estimates}
 
 In the following, we work over arbitrary test and trial spaces \( V \), as
@@ -255,7 +258,7 @@ as we did above,
     \|e \|_V \leq \frac{D C(q)}{\alpha} \|h^{q+1} D^{q+1}u \|.
 \end{equation}
 
-\section{Error Estimation}
+\section{Error Approximation}
 
 In the following we assume we solve a constructed problem with known solution.
 Let \( N \) denote the number of basis elements over the domain. Then we can
