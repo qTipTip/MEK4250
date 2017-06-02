@@ -1,0 +1,275 @@
+
+\chapter[Poisson Equation]{Weak Formulation And Finite Element Error Estimation}
+
+\begin{problem_text}
+    Formulate a finite element method for the Poisson problem with a variable
+    coefficient \( \kappa \colon \Omega \to \R^{d\times d}\). Show that the
+    Lax--Milgram theorem is satisfied. Consider extensions to e.g. the
+    convection-diffusion and the elasticity equation. Derive \emph{a priori}
+    error estimates for the finite element method in the energy norm. Describe
+    how to perform an estimation of convergence rates.
+\end{problem_text}
+
+\section{Finite Element Formulation}
+
+The Poisson problem is formulated as:
+\begin{align}
+    -\div (\kappa \grad u) &= f \text { in } \Omega,\\
+    u &= u_0 \text{ on } \Gamma_D,\\
+    -\kappa \grad u \cdot n &= g \text{ on } \Gamma_N.
+\end{align}
+Here \( u \) denotes the unknown field. We associate to this strong formulation
+of the problem, the bilinear operator \( a\colon \test \times \trial \to \R\),
+and the linear operator \( L \colon \test \to \R\) as follows:
+\begin{align}
+    a(u, v) &\coloneqq \langle -\div(\kappa \grad u), v \rangle, \\
+    L(v) &\coloneqq \langle f, v \rangle.
+\end{align}
+
+\subsection{Weak Formulation}
+\label{sub:weak_formulation}
+
+We can therefore consider instead the \emph{weak formulation} of the Poisson
+problem, which is: Find \( u \in \trial \) such that 
+\begin{equation}
+    a(u, v) = L(v) \text{ for all } v \in \test.
+\end{equation}
+We need to place some requirements to the spaces \(\trial \) and \(\test\) in
+order to satisfy the boundary conditions. However, one requirement we impose
+immediately is that \(v = 0\) on \( \Gamma_D \) for all \( v \in \test\).  What
+these spaces should be is not immediate from the current formulation. Throughout
+the following, \( \langle \cdot, \cdot \rangle \) denotes the \( L^2 \) inner
+product on \( V \). Expanding \( a \) using among others the Gauss--Green
+lemma yields:
+\begin{align}
+    a(u, v) &= \langle -\div(\kappa \grad u), v \rangle = -\langle \kappa \lapl u, v \rangle\\
+            &= \langle \kappa \grad u, \grad v \rangle - \int_{\partial\Omega} - v \kappa  \frac{\partial u}{\partial x}  \cdot n \, dS.
+\end{align}
+The boundary integral above can be rewritten using the partitioning of the boundary:
+\begin{equation}
+    \int_{\partial\Omega} -v \kappa  \frac{\partial u}{\partial x}  \cdot n \, dS =
+    -\int_{\Gamma_D} v \kappa \frac{\partial u}{\partial x} \cdot n \, dS + \int_{\Gamma_N} -v \kappa \frac{\partial u}{\partial x} \cdot n \, dS.
+\end{equation}
+Applying the boundary conditions over respective boundaries and condition on \(
+\test \) we get in total that:
+\begin{equation}
+    a(u, v) = \langle \kappa\grad u, \grad v \rangle - \int_{\Gamma_N} g v \, dS.
+\end{equation}
+Since the boundary term in \( a \) is independent of \( u \) we decide to
+transfer this term to \( L \):
+\begin{equation}
+    a(u, v) = \langle \kappa\grad u, \grad v \rangle, \quad L(v) = \langle f, v
+    \rangle + \int_{\Gamma_N} g v \, dS.
+\end{equation}
+
+
+We now have what we need to determine the spaces \( \test \) and \( \trial \).
+Note that we in the weak form only require \( u \) and \( v \) to be once
+differentiable. Furthermore, we require \( u \) to reduce to \( u_0 \) on \(
+\Gamma_D \) by the boundary conditions, while we need \( v \) to vanish
+identically at \(\Gamma_D\). We therefore decide on the test and trial spaces
+\begin{align}
+    \trial &= H^1_g(\Omega) \coloneqq \left\{ u \in H^1(\Omega) : u = g \text{ on } \Gamma_D \right\} \subseteq H^1(\Omega),\\
+    \test &= H^1_0(\Omega) \coloneqq \left\{ u \in H^1(\Omega) : u = 0 \text{ on } \Gamma_D \right\} \subseteq H^1 (\Omega).
+\end{align}
+
+\subsection{Finite Element Formulation}
+\label{sub:finite_element_formulation}
+
+In order to compute with these spaces, we need to introduce a basis. However,
+the spaces might be infinite dimensional, so we approximate by finite subspaces
+\( \test_h \) and \(\trial_h\) respectively%
+%
+\footnote{Much of the finite element theory amounts to determining what the
+error in this specific approximation is.}. %
+%
+Since we have \( \test \subseteq \trial \) we have \( \test_h \subseteq
+\trial_h \), and we therefore use the same basis vectors for both test and
+trial functions. We seek a solution \( u = \sum_i c_i \varphi_i \) such that
+\begin{align}
+    \sum_{i=1}^{N} c_i a(\varphi_i, \varphi_j) = L(\varphi_j) \text{ for } j = 1, \dots, M
+\end{align}
+where \(N, M\) denotes the dimensions of \(\trial_h, \test_h\) respectively.
+This determines a linear system
+\begin{equation}
+    \A \c = \b
+\end{equation}
+where the matrix entries are determined as follows:
+\begin{equation}
+    A_{i, j} = a(\varphi_i, \varphi_j), \quad b_j = L(\varphi_j).
+\end{equation}
+
+\section{Well Posedness of Weak Formulation}
+\label{sec:well_posedness_of_weak_formulation}
+
+In this section we discuss whether the problem in its weak formulation is
+in fact well posed. Does there exist a solution, and if it does, is this
+solution unique? The Lax--Milgram theorem provides sufficient conditions for
+this problem to be well posed, and hence the solution to exist and be unique.
+We verify the three properties in turn:
+\begin{description}
+    \item[Boundedness of \( a \):]
+        Let \( u, v \in H^1(\Omega) \). Then we have
+        \begin{equation}
+            a(u, v) = \langle \kappa \grad u, \grad v\rangle
+            \underbrace{\leq}_{\mathclap{\text{Using the Cauchy--Schwartz inequality}}} 
+            \overbrace{\|\kappa\|}^{\mathclap{\text{subordinate matrix norm}}} 
+            \| \grad u \|_0 \| \grad v \|_0
+            = \|\kappa\| \| u \|_1 \| v \|_1
+        \end{equation}
+        This is close to proving boundedness of \( a \), however, I do not know
+        how to deal with the \( \| \kappa \| \). However, for \( \kappa = 1\)
+        this proves the claim.
+
+    \item[Coercivity of \(a \):]
+        Let \( u \in H^1 (\Omega) \) and consider the following:
+        \begin{equation}
+            \| u \|_1^2 \overset{\text{def}}{=} \| u \|_0^2 + \| \grad u \|_0^2
+            \underbrace{\leq}_{\mathclap{\text{Using the Poincar\'e inequality
+            on } H^1_0(\Omega)}} \geq (C^2 + 1) \| \grad u \|_0^2
+        \end{equation}
+        This shows that \( a(u, u) \ (C^2 + 1)^{-1} \| u \|_1^2 \) in the
+        case where \( \kappa = 1 \) identically. 
+
+    \item[Boundedness of \( L \):]
+        \begin{align}
+            L(v) &= \langle f, v \rangle + \int_{\Gamma_N} g v\, dS \\
+            \shortintertext{Using Cauchy--Schwartz on both terms yields }
+                 &\leq \| f\|_0 \| v \|_0 + \| g \|_{L^2(\Gamma_N)} \| v \|_{L^2(\Gamma_N)} ;\\
+            \shortintertext{Using the fact that \( v \) is defined on the
+            entirety of \( \Omega \), the \( L^2 \) norm is certainly larger
+            over the whole domain}
+                 &\leq \| f \|_0 \| v \|_0 + \|g\|_{L^2(\Gamma_N)} \| v \|_0;\\
+            \shortintertext{Using that the \( H^1 \) norm greater than or equal
+            to the \( L^2 \) norm}
+                 &\leq (\| f\|_0 + \| g \|_{L^2(\Gamma_N)}) \| v \|_1,\\
+                 &= D \| v \|_1.
+        \end{align}
+        This proves the boundedness of \( L \).
+\end{description}
+This means that the weak formulation of the Poisson problem satisfies the
+Lax--Milgram theorem, hence is well posed. In addition, the solution \( u \) satisfies
+\begin{equation}
+    \| u \|_1 \leq \frac{(C^2 + 1)^{-1}}{\|\kappa\|}\| f \|_{-1}.
+\end{equation}
+
+\section{Extensions to Other Problems}
+\label{sec:extensions_to_other_problems}
+
+Recall that the equation of linear elasticity is given as
+\begin{equation}
+    \label{eq:lin_elast_poisson}
+    - 2 \mu ( \div \varepsilon(u)) - \lambda \grad(\div u) = 0
+\end{equation}
+where \(\varepsilon(u) \coloneqq (\grad u + (\grad u)^T) / 2 \) is the strain
+tensor. Ignoring the second term, first term is supposedly a
+Poisson-equation\footnote{This needs to be verified.}.  However, in order to
+check whether we can apply the results found for the abstract Poisson-problem
+we need to determine what the \( \grad (\div u) \) in the second term is. The
+Helmholtz decomposition theorem states that any \( u \) in \( L^2(\Omega) \)
+can be decomposed into a curl-free part \( \psi \)  and a divergence-free part
+\( \varphi \):
+\begin{equation}
+    u = \psi + \varphi 
+\end{equation}
+where \(\div \varphi = 0\) and \(  \curl \psi = 0 \).  In the light of this, we
+can consider the two special cases where either \( \varphi \) or \( \psi \) are
+zero. 
+\begin{enumerate}[(i)]
+    \item Assume that \( \varphi = 0 \). This means that \( u = \psi \)
+        consists only of the divergence free part. We then have that
+        \(\grad(\div u) = 0 \). Consequently, the second term vanishes in
+        \cref{eq:lin_elast_poisson}.
+    \item Assume that \( \psi = 0 \), i.e., \( u \) consists only of the curl
+        free part. Then using the identity
+        \begin{equation}
+            \lapl u = \grad(\div u) - \curl(\curl v)
+        \end{equation}
+        we see that \( u = \grad(\div(u)) \). Hence,
+        \cref{eq:lin_elast_poisson} reduces to a Poisson problem.
+\end{enumerate}
+In these two special cases, we have that the linear elasticity problem reduces
+to a Poisson problem of the form
+\begin{equation}
+    -(\mu + \lambda)\lapl w = f.
+\end{equation}
+for some source term \( f \).
+
+\section{A Priori Error Estimates}
+\label{sec:a_priori_estimates}
+
+In the following, we work over arbitrary test and trial spaces \( V \), as
+these estimates are general.
+
+\subsection{Energy Norm}
+We now discuss some a priori estimates. Recall that any arbitrary inner product
+induces a norm by
+\begin{equation}
+    \| x \| \coloneqq \sqrt{ \langle x, x \rangle }.
+\end{equation}
+It turns out that the bilinear form \( a \) may, or may not, constitute an
+inner product. If it does, then we may talk about the norm induced by this
+bilinear form.  We call this the \emph{energy norm}. We first need to verify
+that \( a \) does indeed constitute an inner product. The only condition that
+is not trivial is the coercivity, however we already proved this for the
+Lax--Milgram theorem. We therefore define the energy norm
+\begin{equation}
+    \|u\|_E \coloneqq \sqrt{a(u, u)}.
+\end{equation}
+
+Consider now the error \( e \coloneqq u - u_h \). Let \(v \in \test\) be
+arbitrary. In the energy norm, we have
+\begin{align}
+    \| e \|_E^2 = a(e, e) &= a(e, u - u_h) = a(e, u - v + v - u_h) \\
+                          &= a(e, u - v) + a(e, \underbrace{u_h - v}_{\in \test}) = a(e, u-v).
+\end{align}
+Using the Cauchy--Schwartz inequality, we have that
+\begin{equation}
+     \| e \|_E^2 \leq \|e\|_E \|u - v\|_E \implies \| e \|_E \leq \|e - v\|_E
+\end{equation}
+for all \( v \in \test \). This does however not give any sharp bounds, so it
+is hard to quantify exactly what magnitude the error has. We can however
+combine this result with an interpolation error estimate:
+\begin{equation}
+    \| e \|_E \leq \| u - \pi_{q, h} u\|_E \leq C(q) \| h^{q + 1}
+    D^{q+1} u\|.
+\end{equation}
+Here, \( \pi_{q, h} u\) denotes the \( q \)-th order interpolant to \( u \),
+and \( h \) is the maximum mesh size.
+
+
+\subsection{Error estimate without coercivity of \(a\)}
+
+The symmetry of \( a \) is quite a strong requirement, and this is not always
+satisfied. In this section, we do \emph{not} assume that \( a \) is symmetric.
+In the cases where \( a \) is bounded however we can consider the error in the
+vector space norm as follows. Let \( v \in \test \) be arbitrary. Then using
+the coercivity of \( a \) we have:
+
+\begin{align}
+    \| e \|_V^2 &\leq \frac{1}{\alpha} a(e, e) = \frac{1}{\alpha}a(e, u- v + v - u_h) \\
+                &= \frac{1}{\alpha} a(e, u - v)
+                \underbrace{\leq}_{\mathclap{\text{Using boundedness of \(a
+        \)}}} \frac{D}{\alpha}\| e \|_V \| u - v \|_V.
+\end{align}
+Dividing by \( \|e\|_V \) and combining with an interpolation error estimate,
+as we did above, 
+\begin{equation}
+    \|e \|_V \leq \frac{D C(q)}{\alpha} \|h^{q+1} D^{q+1}u \|.
+\end{equation}
+
+\section{Error Approximation}
+
+In the following we assume we solve a constructed problem with known solution.
+Let \( N \) denote the number of basis elements over the domain. Then we can
+consider the error as a function of \( N \). Using degree \( p \) elements over
+a mesh with maximal mesh size of \( h \). Let \( u \) denote the analytic
+solution, and \( u_N \) the computed solution with \( N \) basis elements.
+Denote by \( e_N \) the error in the corresponding approximation.
+We wish to approximate the convergence rate \( \beta \) in the following:
+\begin{equation}
+    \| e \|_V \leq \| h^\beta D^\beta u \|.
+\end{equation}
+We can rewrite this as a linear equation in \( h \) with slope \(\beta\) and
+constant term \( \log(D^\beta u) \). Computing \( e_N \) for various \( N \) we
+can find a linear regression line through the data and approximate \( \beta \).
