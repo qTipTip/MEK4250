@@ -7,6 +7,7 @@
 \usepackage[]{thmtools} 
 \usepackage[]{mdframed} 
 \usepackage[]{booktabs} 
+\usepackage[]{caption} 
 \usepackage[]{subcaption} 
 \usepackage[margin=2in]{geometry} 
 
@@ -18,7 +19,6 @@
 
 \declaretheoremstyle[
     headfont = \color{Maroon}\normalfont\bfseries,
-    leftmargin=-10t,
     mdframed = {
         linecolor=Gray,
         backgroundcolor=Gray!10
@@ -42,6 +42,12 @@
 
 \begin{document}
 \maketitle    
+
+\begin{abstract}
+    In this assignment we consider two boundary value problems, and examine the
+    effect of mesh size on the errors in both the $L_2$ and $H^1$ norm.
+\end{abstract}
+
 \section*{Exercise 1}
 \label{sec:formulation_of_problem}
 
@@ -440,7 +446,8 @@ coarse meshes.
     \centering
     \caption{Error estimates for both first and second order Lagrangian
     elements, for varying values of $\mu$, using the SUPG-method.}
-    \label{tbl:error_estimates_supg}
+    
+    
     
     \subcaption{First order elements.}
     \begin{tabular}{ccccc}
@@ -450,8 +457,6 @@ coarse meshes.
         1.00 &  1.024002 &  0.068333 &  0.988169 &  0.348477 \\
         0.10 &  0.928208 &  0.817010 &  0.808787 &  5.626513 \\
         0.01 &  0.714465 &  0.919312 &  0.197124 &  9.027664 \\
-        \bottomrule
-    \end{tabular}\vspace{2em}
     \subcaption{Second order elements.}
     \begin{tabular}{ccccc}
         \toprule
@@ -460,7 +465,6 @@ coarse meshes.
         1.00 &  -5.295546 &  0.000071 &  -6.289647 &  0.000438 \\
         0.10 &  -7.960629 &  0.000000 &  -9.286106 &  0.000000 \\
         0.01 &   0.609334 &  0.719865 &  -0.245373 &  3.387804 \\
-        \bottomrule
     \end{tabular}
 \end{table}
 \end{document}
