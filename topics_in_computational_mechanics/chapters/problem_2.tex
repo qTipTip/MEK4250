@@ -222,7 +222,7 @@ the Galerkin-orthogonality as \( a \) does:
 \begin{equation}
     a(u - u_h, v) = 0 \text{ for all } v \in \test_h,
 \end{equation}
-namely that this equation is zero for \emph{all} discretizations, and not just
+namely that this equation is zero for \emph{all} discretization, and not just
 in the limit.
 
 We can however make the scheme strongly consistent by employing different
@@ -237,7 +237,7 @@ the Petrov-Galerkin method the test functions are tailored to ensure a
 strongly consistent scheme.
 
 \subsection{Finite Element Formulation}
-\label{sub:finite_element_formulation}
+\label{sub:finite_element_formulation_diffusion}
 
 Letting \( \test_h\) and \(\trial_h\) denote the finite dimensional subspaces
 of \( \test \) and \( \trial \) respectively. Assume these are given by bases
@@ -256,4 +256,59 @@ diffusion consistently? It turns out that setting
 \begin{equation}
     \psi_j \coloneqq \varphi_j + \varepsilon\omega \cdot \grad \varphi_j
 \end{equation}
-does the trick.
+does the trick. Expanding the matrix elements with this new basis yields
+\begin{align}
+    A_{i, j} &= \langle \mu \grad \varphi_i , \grad\varphi_j \rangle
+    + \varepsilon\langle \mu \grad \varphi_i, \grad (\omega\cdot\grad\varphi_j)\rangle
+    + \langle \omega \cdot \grad \varphi_i, \varphi_j \rangle
+    + \varepsilon\langle \omega \cdot \grad \varphi_i,  \omega \cdot \grad \varphi_j\rangle\\
+    b_j &= \langle f, \varphi_j \rangle + \varepsilon\langle f,  \omega \cdot \grad \varphi_j \rangle.
+\end{align}
+The terms not containing \( \varepsilon \) correspond to the standard Galerkin
+method. 
+
+\section{Error estimates}
+\label{sub:chp_2_error_estimates}
+
+We consider two different error estimates. One being an estimate for the error
+in the standard Galerkin approximation. The other one is tailored for the
+Streamline diffusion / Petrov--Galerkin method.
+
+\subsection{Standard Galerkin Method}
+
+We employ the same trick as in \vref{ssec:error_estimate_cea} where we assume
+boundedness of \(a\). Let \( u_h \) be the computed solution. Using the
+coercivity of the bilinear form \( a \) and the Galerkin orthogonality property
+we get
+\begin{align}
+    \|e\|_1^2 &\leq \frac{1}{\alpha} a(e, e) = \frac{1}{\alpha} a(e, u - v + v - u_h)\\
+              &= \frac{1}{\alpha}a(e, u - v) \leq \frac{C}{\alpha}\| e\|_1 \| u - v \|_1
+\end{align}
+for all \( v \in \test \).
+Dividing both sides yield
+\begin{equation}
+    \| e \|_1 \leq \frac{C}{\alpha}\| u - v \|_1.
+\end{equation}
+The Bramble--Hilbert lemma yields a bound on the interpolation error of a
+certain type of interpolation operator, denoted \( \pi_{p, h} u \) of order \(
+p \). This can be combined with the above error estimate to yield
+\begin{equation}
+    \| e \|_1 \leq \frac{C}{\alpha}\| u - \pi_{p, h} u \|_1 \leq \frac{CB}{\alpha} \| h^p u \|_{p+1}.
+\end{equation}
+Recall that the constant \( \alpha \), coming from the coercivity of \(a \), is
+given as \( \alpha = \mu ( 1 - D_\omega) \). If \( \mu \) is very small, i.e.,
+in convection dominated problems,  then our error bound becomes very bad. This
+can be fixed by looking at a more specifically tailored error estimate.
+
+\subsection{Petrov--Galerkin method}
+
+Introduce the \emph{SUPG-norm} defined as follows:
+\begin{equation}
+    \| u \|_{\mathrm{SUPG}} \coloneqq \left(h \| \omega \cdot \grad u \|^2 + \mu | \grad u |^2 \right)^{1 / 2}
+\end{equation}
+It turns out that solving the Petrov--Galerkin problem on a finite element
+space of order \( 1 \) with the same assumptions as above, then
+\begin{equation}
+    \| u - u_h\|_{\mathrm{SUPG}} \leq Ch^{3/2} \|u\|_2.
+\end{equation}
+This is stated without proof.

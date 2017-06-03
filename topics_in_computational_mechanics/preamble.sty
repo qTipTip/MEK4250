@@ -1,3 +1,4 @@
+
 \usepackage{amsmath}
 \usepackage{amssymb} 
 \usepackage{amsthm} 
@@ -10,11 +11,14 @@
 \usepackage{enumerate} 
 \usepackage{paralist} 
 
+\usepackage{varioref}
 \usepackage{hyperref} 
 \usepackage[noabbrev, capitalize]{cleveref} 
 
 \linespread{1.25}
 
+
+% Custom Commands and operators
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\A}{\boldsymbol{A}}
 \renewcommand{\c}{\boldsymbol{c}}
@@ -27,4 +31,6 @@
 \let\div\relax
 \DeclareMathOperator{\div}{\nabla \cdot}
 
+
+% Theorem declarations
 \declaretheorem[mdframed={},style=definition, name=Problem, numbered=no]{problem_text}
