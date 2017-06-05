@@ -265,7 +265,9 @@ does the trick. Expanding the matrix elements with this new basis yields
     b_j &= \langle f, \varphi_j \rangle + \varepsilon\langle f,  \omega \cdot \grad \varphi_j \rangle.
 \end{align}
 The terms not containing \( \varepsilon \) correspond to the standard Galerkin
-method. 
+method. In order keep \(A \)  a square matrix, we make sure \( N = M \).
+
+
 
 \section{Error estimates}
 \label{sub:chp_2_error_estimates}
