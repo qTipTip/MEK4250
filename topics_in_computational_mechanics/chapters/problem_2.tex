@@ -27,7 +27,7 @@ a velocity.  We associate to this problem the bilinear operator \( a \colon
 
 \subsection{Weak Formulation}
 
-We can now consider the \emph{weak formulation} of the Convection-Diffusion
+We can now consider the \cemph{weak formulation} of the Convection-Diffusion
 problem. That is: Find \( u \) in \( \trial \) such that:
 \begin{equation}
     a(u, v) = L(v) \text{ for all } v \in \test.
@@ -54,7 +54,7 @@ We now need to verify that this abstract problem is well posed.
 
 \section{Well Posedness of Weak Formulation}
 
-While our problem is not \emph{homogeneous} in the Dirichlet conditions, we can
+While our problem is not \cemph{homogeneous} in the Dirichlet conditions, we can
 reduce it to a homogeneous problem. The reason for doing this is to employ the
 Poincar\'e inequality, which only holds for \( H^1_0 (\Omega) \). Again, the
 Lax--Milgram theorem gives sufficient conditions for the problem being well
@@ -77,7 +77,7 @@ and note that \(a(u, v) = b(u, v) + c_\omega(u, v)\).
 For the incompressible case, we have \( \div \omega = 0 \). In addition to this
 assumption, we also assume that the flow velocities are bounded, i.e., \(D_\omega \coloneqq \|
 \omega \|_\infty < \infty \). It can then be shown that the bilinear form \(
-c_\omega(u, v) \) is \emph{skew-symmetric}, that is
+c_\omega(u, v) \) is \cemph{skew-symmetric}, that is
 \begin{equation}
     c_\omega(u, v) = - c_\omega(v, u).
 \end{equation}
@@ -167,14 +167,14 @@ oscillations in the solution.
 
 \subsection{Finite Difference Upwinding}
 
-One remedy is to introduce the concept of \emph{upwinding}. Instead of using a
+One remedy is to introduce the concept of \cemph{upwinding}. Instead of using a
 central finite difference scheme as above, one employs either a forward or a backward
 first order scheme, based on the velocity \( \omega\). That is:
 \begin{align}
     u'(x_i) \approx \frac{1}{h}[u_{i+1} - u_i] \text{ if } \omega < 0, \\
     u'(x_i) \approx \frac{1}{h}[u_{i} - u_{i-1}] \text{ if } \omega > 0.
 \end{align}
-This upwinding scheme can be seen as a special case of \emph{artificial
+This upwinding scheme can be seen as a special case of \cemph{artificial
 diffusion}, where one solves the ``artificial'' problem
 \begin{equation}
     -(\mu + \varepsilon)\lapl u + \omega \cdot \grad u = f,
@@ -217,12 +217,12 @@ This can be written succinctly as
 \end{equation}
 If we let \( \varepsilon = h / 2 \) we see that in the limit as \( h \to 0 \),
 we have \( \tilde{a}(u, v) \to a(u, v) \), and the scheme is consistent in this
-sense. However, it is not \emph{strongly consistent} as it does not satisfy
+sense. However, it is not \cemph{strongly consistent} as it does not satisfy
 the Galerkin-orthogonality as \( a \) does: 
 \begin{equation}
     a(u - u_h, v) = 0 \text{ for all } v \in \test_h,
 \end{equation}
-namely that this equation is zero for \emph{all} discretization, and not just
+namely that this equation is zero for \cemph{all} discretization, and not just
 in the limit.
 
 We can however make the scheme strongly consistent by employing different
@@ -304,7 +304,7 @@ can be fixed by looking at a more specifically tailored error estimate.
 
 \subsection{Petrov--Galerkin method}
 
-Introduce the \emph{SUPG-norm} defined as follows:
+Introduce the \cemph{SUPG-norm} defined as follows:
 \begin{equation}
     \| u \|_{\mathrm{SUPG}} \coloneqq \left(h \| \omega \cdot \grad u \|^2 + \mu | \grad u |^2 \right)^{1 / 2}
 \end{equation}

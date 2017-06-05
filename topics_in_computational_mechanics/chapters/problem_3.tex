@@ -1,0 +1,254 @@
+\chapter[Stokes Problem]{Discretization of Stokes Problem}
+
+\begin{problem_text}
+Derive a proper variational formulation of the Stokes problem. Discuss the four
+Brezzi conditions that are needed for a well-posed continuous problem. Explain
+why oscillations might appear in the pressure for some discretization
+techniques. Present expected approximation properties for mixed elements that
+satisfy the \(\inf\)-\(\sup\) condition, and discuss a few examples like e.g.
+Taylor--Hood, Mini, and Crouzeix--Raviart. Discuss also how one might circumvent
+the \(\inf\)-\(\sup\) condition by stabilization. 
+\end{problem_text}
+
+
+
+\section{Finite Element Formulation}
+
+The Stokes problem deals with the flow of incompressible Newtonian fluids
+slowly moving in a domain \( \Omega \subseteq \R^n\). The strong formulation of
+the problem is given as:
+\begin{align}
+    -\lapl u + \grad p &= f \text{ in }  \Omega, \\
+    \div u &= 0 \text{ in } \Omega,  \\
+    u &= g \text{ on } \Gamma_D, \\
+    \frac{\partial u}{\partial n} - pn &= h \text{ on } \Gamma_N.
+\end{align}
+Here \( p : \Omega \to \R \) denotes the fluid pressure, \( u : \Omega \to \R^n
+\) denotes the fluid velocity. The body force is denoted \( f \). Note that
+this problem has two unknowns, namely \( u \) and \( p \). To this strong
+formulation we associate the two bilinear forms \( a \colon \trial \times
+\trial \to \R \) and \( b \colon W \times \trial \to \R \) given by
+\begin{align}
+    a(u, v) &\coloneqq \langle \grad u, \grad v \rangle, \\
+    b(p, v) &\coloneqq \langle p, \div v \rangle.
+\end{align}
+In addition, we also introduce the linear form \( L \colon \trial \to \R \)
+given by
+\begin{equation}
+    L(v) \coloneqq \langle f, v \rangle + \int_{\Gamma_N} h v \, dS.
+\end{equation}
+
+\subsection{Weak Formulation}
+
+We can therefore instead consider the weak form of the Stokes problem, namely:
+Find \( u \in V \) and \( p \in W \) such that 
+\begin{align}
+    a(u, v) + b(p, v) &= f(v) \text{ for all } v \in \test,\\
+    b(q, u) &= 0 \text{ for all } q \in \hat{W}.
+\end{align}
+
+Again we need to precicely state what the trial spaces \( V, W \) and
+respective test spaces are. We require \( u \) to equal \( g \) on the
+Dirichlet boundary, while \( v \) should vanish on the Dirichlet boundary.
+Furthermore, we require only one derivative in \( u \) and \( v \) and no
+derivatives in \( p \). We therefore decide on the spaces
+\begin{align}
+    \trial &\coloneqq H^1_g(\Omega) \subseteq H^1 (\Omega), & \test &\coloneqq
+    H^1_0(\Omega) \subseteq H^1(\Omega), \\ 
+    W &\coloneqq L^2(\Omega), & \hat{W} &\coloneqq L^2_0(\Omega) \subseteq
+    L^2(\Omega).
+\end{align}
+
+\subsection{Finite Element Formulation}
+
+In order to compute with these spaces we need to introduce a basis. Assume that
+the finite dimensional velocity space \( \trial_h \) is spanned by basis
+elements \((\varphi_i)_{i=1}^N \) and that the finite dimensional pressure
+space \( W_h \) is spanned by basis elements \((\psi_j)_{j=1}^M\).  Making the
+ansatz
+\begin{equation}
+    u = \sum^{N}_{i=1} c_i \varphi_i, \qquad p = \sum^{M}_{j=1} d_i \psi_j
+\end{equation}
+we end up with the linear system 
+\begin{equation}
+    \label{eq:discretized_stokes}
+    \begin{bmatrix}
+        \A & \B^T \\
+        \B & 0
+    \end{bmatrix} \begin{bmatrix}
+        \c \\
+        \d
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \b \\
+        0
+    \end{bmatrix},
+\end{equation}
+where the matrix elements are given as
+\begin{align}
+    A_{i, j} &= \langle \grad \varphi_i, \grad \varphi_j \rangle, \\
+    B_{i, j} &= \langle \psi_i, \grad \varphi_j \rangle, \\
+    b_j &= \langle f, \varphi_j \rangle + \int_{\Gamma_N} h \varphi_j \, dS.
+\end{align}
+
+\section{Well Posedness of Weak Formulation}
+
+In the abstract setting, the Stokes problem is a mixed saddle point problem.
+There is a set of four conditions --- analogous to the Lax--Milgram theorem
+used in the Poisson and Convection-Diffusion problems --- for the Stokes
+problem that ensure the existence and uniqueness of the continuous solution.
+In the following, we assume that the Dirichlet boundary condition can be
+reduced to a homogenous one, in order to be able to apply the Poincar\'e
+inequality.
+
+\paragraph{Boundedness of \(a\):}
+
+Applying the Cauchy--Schwartz inequality on \( a \) yields:
+\begin{equation}
+    a(u, v) = \langle \grad u, \grad v \rangle \leq \|\grad u\|_0 \| \grad v\|_0.
+\end{equation}
+Noting that the \( L^2\)-norm of the gradient is always smaller than the \( H^1
+\) norm, the condition holds. 
+
+\paragraph{Boundedness of \(b \):}
+
+Applying the Cauchy--Schwartz inequality on \( b \) yields:
+\begin{equation}
+    b(p, v) = \langle p, \div v \rangle \leq \| p \|_0 \|\div v\|_0.
+\end{equation}
+To show boundedness, it suffices to show that \(\| \div v \|_0 \leq \| v \|_1
+\). To this end, note that 
+\begin{equation}
+    \| \div v \|_0 = \left( \int_\Omega \sum^{n}_{i=1} \left(\frac{\partial
+    v_i}{\partial x_i}\right)^2 d\Omega \right)^{1/2}.
+\end{equation}
+This is merely a subset of the terms occuring in the expression for \( (\grad
+u)^2 \), hence we can conclude outright that \( \| \grad v \|_0 \leq \| v\|_1
+\), and consequently \(b \) is bounded.
+
+\paragraph{Coercivity of \( a \):}
+
+Start by noting that \(\| u \|_1^2 = \| u \|_0^2 + \| \grad u \|_0^1 \). By the
+Poincar\'e inequality, we have that this satisfies
+\begin{equation}
+    \| u \|_1^2 \leq (C^2 + 1 )|u|_1^2.
+\end{equation}
+Furthermore, we have that \( |u|_1^2 = a(u, u) \), and hence
+\begin{equation}
+    a(u, u) \geq \frac{1}{C^2 + 1}\|u\|_1^2
+\end{equation}
+which shows that \( a \) is indeed coercive.
+
+\paragraph{The \(\inf\)-\(\sup\) condition:}
+
+In order for the discretized Stokes problem to be well posed, we also need to
+satisfy the \( \inf \)-\(\sup\) condition, namely that
+\begin{equation}
+    \label{eq:infsup}
+    \sup_{v \in \test} \frac{b(q, v)}{\|v\|_1} > K \| q \|_0 \text{ for all } q \in \hat{W}.
+\end{equation}
+This can be thought of as the ``coercivity'' of \( b \). This condition ensures
+that \( B \) is surjective, or that \( B^T \) is injective. This in turn
+ensures that the solution exists and is unique. We will not show that this
+holds for the Stokes problem, as it is tricky.
+
+\section{Oscillations in the pressure}
+
+Consider the matrix equations in \vref{eq:discretized_stokes}. Writing these
+out yields the system of two equations
+\begin{align}
+    \A \c + \B^T \d &= \b, \\
+    \B\c &= 0.
+\end{align}
+Recall that \( \c \) are the degrees of freedom for the velocity, and that \(
+\d \) are the degrees of freedom for the pressure. Since \( a \rightsquigarrow
+\A \) we have that \( \A \) is invertible. Under the assumption that \(\B
+\A^{-1} \B^T\) is invertible we can solve for the pressure \( \d \), yielding
+\begin{equation}
+    \d = (\B\A^{-1}\B^T)^{-1} \B\A^{-1}\b.
+\end{equation}
+Under what cirumstances is \( \B\A^{-1}\B^T \) invertible? Since \( \A \) is
+invertible, we need only consider whether \( \B\B^T \) is invertible. This is
+equivalent to verifying that \( \Ker(\B) = 0 \), and it is exactly this the \(
+\inf\)-\(\sup\) condition in \vref{eq:infsup} gives sufficient conditions for.
+Hence if this is not satisfied, we may be solving a non-invertible system.
+
+If \( n \) and \( m \) denotes the number of degrees of freedom for the
+velocity and the pressure respectively, the block matrix equation is
+non-singular if \( n \) is sufficiently large compared to \( m \). This is
+because the zero-matrix is of dimension \( m \times m \). Having \( n \gg m\)
+ensures that this is comparatively small. 
+
+\section{Error Estimates}
+
+In the following, set \( e_u \coloneqq u - u_h \) and \( e_p \coloneqq p - p_h
+\).  For finite element pairs that satisfy the \( \inf \)-\(\sup\) condition
+\cref{eq:infsup} we have an error estimate that reads
+\begin{equation}
+    \| e_u \|_1 + \| e_p \|_1 \leq C h^k \|u\|_{k+1} + D h^{\ell + 1} \|p\|_{\ell + 1}
+\end{equation}
+where \( k \) and \( \ell \) denotes the polynomial degree of the velocity and
+pressure. Finding finite element pairs that satisfies the conditions for this
+error estimate is a difficult task. Below are a few examples of such finite
+element pairs:
+\begin{description}
+    \item[The Taylor--Hood element:]
+        This element pair consists of a quadratic element for the velocity, and
+        a linear element for the pressure. This yields the error estimate
+        \begin{equation}
+            \| e_u \|_1 + \| e_p \|_1 \leq h^2 \left( C\|u\|_{3} + D \|p\|_{2}\right).
+        \end{equation}
+    \item[The Crouzeix--Raviart element:]
+        This element consists of a linear element in velocity, and a constant
+        element in pressure, yielding the error estimate:
+        \begin{equation}
+            \| e_u \|_1 + \| e_p \|_1 \leq h^1 \left(C \|u\|_{2} + D \|p\|_{1}\right)
+        \end{equation}
+    \item[The Mini element:]
+        This element employs linear elements in both velocity and pressure,
+        however the velocity element also contains a cubic bubble in order to
+        yield enough degrees of freedom to satisfy the inf-sup condition. We get the error estimate
+        \begin{equation}
+            \| e_u \|_1 + \| e_p \|_1 \leq C h^1 \|u\|_{2} + D h^{2} \|p\|_{2}
+        \end{equation}
+\end{description}
+
+\section{Stabilization Techniques}
+
+Instead of solving the system given in \cref{eq:discretized_stokes}, we may
+solve an alternative system given as
+\begin{align}
+    \A\c + \B^T \d &= \b, \\
+    \B\c - \varepsilon \D \d &= \varepsilon d.
+\end{align}
+This alternative, perturbed,  system has coupled the solution of \( \c \) to
+the solution of \( \d \) in a way that lets us control the coupling, through
+both the matrix \( \D \) which we have yet to define, and the parameter \(
+\varepsilon \).  Solving this for the pressure, we get:
+\begin{equation}
+    \d = (-\varepsilon D)^{-1}(\varepsilon d- \B \c)
+\end{equation}
+Using this to solve for the velocity \( \c \):
+\begin{equation}
+    \c = (\d + \D^{-1}d) \left(\A + \frac{1}{\varepsilon}\B^T\D^{-1}\B\right)^{-1}
+\end{equation}
+provided that the matrix on the right is infact invertible. It can be verified
+that is is by noting that \(\A\) is positive by construction, and \( \B^T
+\D^{-1} B \) is positive if \( \D \) is positive. Hence, in chosing \( \D \) we
+need to make sure it is infact positive. Three choices for \( \D \) are
+proposed, all based on perturbed versions of the equation of continuity \( \div
+u = 0 \):
+\begin{enumerate}[(i)]
+    \item Setting \( \D \coloneqq \A \), this corresponds to pressure
+        stabilization where \(\div v = \varepsilon \lapl p \); 
+    \item setting \( \D \coloneqq \boldsymbol{M}\), corresponding to the
+        penality method where \( \div v = \varepsilon p \); or 
+    \item setting \( \D \coloneqq (1/\Delta t) M\) corresponding to artificial
+        compressibility, \( \div v= -\varepsilon (\partial p/\partial t)
+        \).
+\end{enumerate}
+A problem with such techniques lies in the choice of the parameter \(
+\varepsilon \). Choosing \( \varepsilon \) too small, pressure oscillations
+occur in the solution. Choosing \( \varepsilon \) too large the accuracy of the
+solution deteriorates.

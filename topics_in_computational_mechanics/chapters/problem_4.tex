@@ -1,0 +1,116 @@
+\chapter[Navier--Stokes]{Discretization Of Navier--Stokes}
+
+\begin{problem_text}
+    Explain the difference between operator splitting and algebraic splitting
+    in the context of incompressible Navier--Stokes equations. Show
+    disadvantages of operator splitting schemes associated with boundary
+    conditions. Explain the advantage with operator splitting schemes as
+    compared to algebraic splitting in the context of Richardson iteration and
+    spectral equivalence.
+\end{problem_text}
+
+Recall that the incompressible Navier--Stokes equations are given by
+\begin{equation}
+    \label{eq:NS}
+    \frac{\partial v}{\partial t} + v \cdtot \grad v = -\frac{1}{\varrho} \grad p + \nu \grad^2 v + g,
+\end{equation}
+with the equation of continuity, or \cemph{incompressibility constraint},
+\begin{equation}
+    \label{eq:NSc}
+    \div v = 0.
+\end{equation}
+Here \( v \) is the velocity field, \( p \) is the pressure, \( \varrho \) is
+the fluid density, and \( g \) is an umbrella term describing body forces.
+
+\section{Operator Splitting}
+\label{sub:operator_splitting}
+
+The basic operator splitting algorithm can be summarized in three steps.  These
+steps will be motivated in the following.
+\begin{enumerate}[(i)]
+    \item Compute the velocity prediction \( v^\star \) from an explicit equation involving the previous velocity \( v^n \).
+    \item Solve the obtained Poisson equation for the pressure difference in time.
+    \item Compute the new velocity \( v^{n+1} \) and the new pressure \(
+        p^{n+1} \) from explicit equations.
+\end{enumerate}
+
+\subsection{Explicit Scheme}
+Starting with a forward step in time in \cref{eq:NS}:
+\begin{equation}
+    \label{eq:forward_step}
+    v^{n+1} = v^n - \dd t \left(v^{n} + \frac{1}{\varrho} \grad p^n} - \nu \grad^2 v^n - g^n\right).
+\end{equation}
+This cannot be the velocity at time level \( n + 1 \) because it does not
+satisfy the equation of continuity \cref{eq:NSc}, i.e., \(\div v^{n+1} \neq 0
+\). We instead use this as an intermediate step, denoted \( v^\star \), in
+computing the new velocity. We may attempt to use the incompressibility
+constraint to compute a correction term \( v^\mathrm{c} \) such that \( v^{n+1}
+= v^\star + v^\mathrm{c} \). In order to gain some control over the pressure
+data in the equation, we also introduce the factor \( \beta \) to the pressure
+term:
+\begin{equation}
+    v^\star = v^n - \dd t \left(v^n + \frac{\beta}{\varrho}\grad p^n - \nu
+    \grad^2 v^n - g^n \right).
+\end{equation}
+The computed velocity \( v^{n+1} \) should also solve \cref{eq:forward_step}
+where the pressure is evaluated at time level \(n + 1\). That is 
+\begin{equation}
+    v^{n+1} = v^n - \dd t \left(v^{n} + \frac{1}{\varrho} \grad p^{n+1}} - \nu \grad^2 v^n - g^n\right).
+\end{equation}
+Subtracting these two equations yield an expression for \( v^\mathrm{c} \):
+\begin{align}
+    v^\mathrm{c} &\coloneqq v^{n+1} - v^\star = -\frac{\dd t}{\varrho}
+    \grad\left(  p^{n+1} - \beta p^n \right), 
+    \shortintertext{or equivalently:}
+    v^{n+1} &= v^\star - v^\mathrm{c} = v^\star - \frac{\dd t}{\varrho} \grad \left( p^{n+1} - \beta p^n \right).
+\end{align}
+Setting \( \varphi \coloneqq p^{n+1} - \beta p^n\) and requiring that \( \div
+v^{n+1} = 0 \) yields a Poisson equation in \( \varphi \):
+\begin{equation}
+    \grad^2 \varphi = \frac{\varrho}{\dd t} \div v^{\star}.
+\end{equation}
+After solving this for \( \varphi \) we may update our solution in both
+velocity and pressure as follows:
+\begin{align}
+    \label{eq:update}
+    p^{n+1} &= \beta p + \varphi, \\
+    v^{n+1} &= v^\star - \frac{\dd t}{\varrho} \grad \varphi.
+\end{align}
+
+\subsubsection{Boundary Conditions}
+\label{par:boundary_conditions}
+
+A question arises, namely: How do we solve the Poisson equation for the
+pressure difference \( \varphi \)? We are short on boundary conditions. Two
+remedies are proposed:
+\begin{enumerate}[(i)]
+    \item Computing \( \partial p / \partial n\) from \cref{eq:NS} by
+        multiplying the equation by the unit normal vector. This gives us
+        Neumann boundary conditions for the pressure difference, \( \partial
+        \varphi / \partial n \).
+    \item Since \( v^{n+1} \) is supposed to satisfy the Dirichlet boundary
+        conditions, then from \cref{eq:update} we must have
+        \begin{equation}
+            \grad \varphi |_{\partial \Omega} = \frac{\dd t}{\varrho} (v^{n+1} - v^\star)|_{\partial\Omega} = 0.
+        \end{equation}
+        Hence \( \varphi \) must be constant on the boundary.
+\end{enumerate}
+
+\subsection{Implicit Scheme}
+\label{par:implicit_scheme}
+
+In the above derivations an explicit scheme was used for the stepping. It is
+perfectly reasonable to instead use implicit schemes, like a \( \theta
+\)-scheme. This will generally lead to a solution that involves an
+advection-diffusion equation, a Poisson equation, and then performing two
+implicit updates of the velocity and pressure. We will not go into detail here.
+
+\section{Algebraic Splitting}
+\label{sec:algebraic_splitting}
+ 
+Note that in the operator splitting scheme, we discretize in time before
+discretizing in space. This leads to the need for more boundary conditions in
+order to solve the Poisson-problem for the pressure difference. An alternative
+approach discretizes in space before we discretize in time. This removes the
+need for construction of additional boundary conditions as these are baked into
+the algebraic constraints.

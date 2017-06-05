@@ -5,7 +5,7 @@
     Formulate a finite element method for the Poisson problem with a variable
     coefficient \( \kappa \colon \Omega \to \R^{d\times d}\). Show that the
     Lax--Milgram theorem is satisfied. Consider extensions to e.g. the
-    convection-diffusion and the elasticity equation. Derive \emph{a priori}
+    convection-diffusion and the elasticity equation. Derive \cemph{a priori}
     error estimates for the finite element method in the energy norm. Describe
     how to perform an estimation of convergence rates.
 \end{problem_text}
@@ -29,7 +29,7 @@ and the linear operator \( L \colon \test \to \R\) as follows:
 \subsection{Weak Formulation}
 \label{sub:weak_formulation}
 
-We can therefore consider instead the \emph{weak formulation} of the Poisson
+We can therefore consider instead the \cemph{weak formulation} of the Poisson
 problem, which is: Find \( u \in \trial \) such that 
 \begin{equation}
     a(u, v) = L(v) \text{ for all } v \in \test.
@@ -209,7 +209,7 @@ induces a norm by
 \end{equation}
 It turns out that the bilinear form \( a \) may, or may not, constitute an
 inner product. If it does, then we may talk about the norm induced by this
-bilinear form.  We call this the \emph{energy norm}. We first need to verify
+bilinear form.  We call this the \cemph{energy norm}. We first need to verify
 that \( a \) does indeed constitute an inner product. The only condition that
 is not trivial is the coercivity, however we already proved this for the
 Lax--Milgram theorem. We therefore define the energy norm
@@ -241,7 +241,7 @@ and \( h \) is the maximum mesh size.
 \subsection{Error estimate without coercivity of \(a\)}
 \label{ssec:error_estimate_cea}
 The symmetry of \( a \) is quite a strong requirement, and this is not always
-satisfied. In this section, we do \emph{not} assume that \( a \) is symmetric.
+satisfied. In this section, we do \cemph{not} assume that \( a \) is symmetric.
 In the cases where \( a \) is bounded however we can consider the error in the
 vector space norm as follows. Let \( v \in \test \) be arbitrary. Then using
 the coercivity of \( a \) we have:

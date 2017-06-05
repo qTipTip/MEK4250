@@ -8,15 +8,19 @@
 \usepackage{microtype} 
 \usepackage{geometry} 
 
+\usepackage[usenames, dvipsnames, svgnames, table]{xcolor} 
+
 \usepackage{enumerate} 
 \usepackage{paralist} 
 
 \usepackage{varioref}
 \usepackage{hyperref} 
-\usepackage[noabbrev, capitalize]{cleveref} 
+\usepackage[noabbrev]{cleveref} 
 
 \linespread{1.25}
 
+% Emphasis in red
+\newcommand{\cemph}[1]{\emph{#1}}
 
 % Custom Commands and operators
 \newcommand{\R}{\mathbb{R}}
@@ -29,12 +33,19 @@
 \DeclareMathOperator{\grad}{\mathop{}\!\nabla}
 \DeclareMathOperator{\lapl}{\mathop{}\!\Delta}
 \DeclareMathOperator{\Ker}{Ker}
+\newcommand{\dd}{\mathrm{d}}
 \newcommand{\test}{\hat{V}}
 \newcommand{\trial}{V}
 \DeclareMathOperator{\curl}{\mathop{}\!\nabla \times}
 \let\div\relax
 \DeclareMathOperator{\div}{\mathop{}\!\nabla \cdot}
 
-
 % Theorem declarations
-\declaretheorem[mdframed={},style=definition, name=Problem, numbered=no]{problem_text}
+\declaretheoremstyle[
+    headfont = \color{Maroon}\normalfont\bfseries,
+    mdframed = {
+        linecolor=Gray,
+        backgroundcolor=Gray!10
+    }
+]{problem_style}
+\declaretheorem[style=problem_style, name=Problem, numbered=no]{problem_text}
