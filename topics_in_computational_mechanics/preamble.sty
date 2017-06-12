@@ -1,4 +1,3 @@
-
 \usepackage{amsmath}
 \usepackage{amssymb} 
 \usepackage{amsthm} 
@@ -7,8 +6,8 @@
 \usepackage{mathtools} 
 \usepackage{microtype} 
 \usepackage{geometry} 
-
 \usepackage[usenames, dvipsnames, svgnames, table]{xcolor} 
+\usepackage{calc} 
 
 \usepackage{enumerate} 
 \usepackage{paralist} 
@@ -23,10 +22,13 @@
 \newcommand{\cemph}[1]{\emph{#1}}
 
 % Custom Commands and operators
+\newcommand{\bsy}[1]{\boldsymbol{#1}}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\A}{\boldsymbol{A}}
 \newcommand{\B}{\boldsymbol{B}}
 \newcommand{\D}{\boldsymbol{D}}
+\newcommand{\x}{\boldsymbol{x}}
+\renewcommand{\u}{\boldsymbol{u}}
 \renewcommand{\c}{\boldsymbol{c}}
 \renewcommand{\d}{\boldsymbol{d}}
 \renewcommand{\b}{\boldsymbol{b}}
@@ -48,4 +50,30 @@
         backgroundcolor=Gray!10
     }
 ]{problem_style}
+\declaretheoremstyle[
+    headfont = \color{Maroon}\normalfont\itshape,
+    mdframed = {
+        linecolor=Gray
+    }
+]{remark_style}
+\declaretheoremstyle[
+    headfont = \color{Maroon}\normalfont\bfseries,
+]{remark_style}
 \declaretheorem[style=problem_style, name=Problem, numbered=no]{problem_text}
+\declaretheorem[style=remark_style, name=Remark, numbered=yes]{remark}
+\declaretheorem[style=definition, name=Definition, numbered=yes]{definition}
+
+% Chapter style
+\makechapterstyle{combined}{
+  \setlength{\midchapskip}{-60pt}
+  \setlength{\afterchapskip}{2.5cm}
+  \renewcommand*{\printchaptername}{}
+  \renewcommand*{\chapnumfont}{\normalfont\bfseries\fontsize{80}{0}\selectfont}
+  \renewcommand*{\printchapternum}{\flushright\chapnumfont\textcolor[rgb]{.64,.79,.87}{\thechapter}}
+  \renewcommand*{\chaptitlefont}{\normalfont\Huge\bfseries}
+  \renewcommand*{\printchaptertitle}[1]{%
+    \raggedright\chaptitlefont\parbox[t]{\textwidth-3cm}{\raggedright##1}}
+}
+
+\chapterstyle{combined}
+

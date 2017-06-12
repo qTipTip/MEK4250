@@ -12,7 +12,7 @@
 Recall that the incompressible Navier--Stokes equations are given by
 \begin{equation}
     \label{eq:NS}
-    \frac{\partial v}{\partial t} + v \cdtot \grad v = -\frac{1}{\varrho} \grad p + \nu \grad^2 v + g,
+    \frac{\partial v}{\partial t} + v \cdot \grad v = -\frac{1}{\varrho} \grad p + \nu \grad^2 v + g,
 \end{equation}
 with the equation of continuity, or \cemph{incompressibility constraint},
 \begin{equation}
@@ -38,7 +38,7 @@ steps will be motivated in the following.
 Starting with a forward step in time in \cref{eq:NS}:
 \begin{equation}
     \label{eq:forward_step}
-    v^{n+1} = v^n - \dd t \left(v^{n} + \frac{1}{\varrho} \grad p^n} - \nu \grad^2 v^n - g^n\right).
+    v^{n+1} = v^n - \dd t \left(v^{n} + \frac{1}{\varrho} \grad p^n - \nu \grad^2 v^n - g^n\right).
 \end{equation}
 This cannot be the velocity at time level \( n + 1 \) because it does not
 satisfy the equation of continuity \cref{eq:NSc}, i.e., \(\div v^{n+1} \neq 0
@@ -55,7 +55,7 @@ term:
 The computed velocity \( v^{n+1} \) should also solve \cref{eq:forward_step}
 where the pressure is evaluated at time level \(n + 1\). That is 
 \begin{equation}
-    v^{n+1} = v^n - \dd t \left(v^{n} + \frac{1}{\varrho} \grad p^{n+1}} - \nu \grad^2 v^n - g^n\right).
+    v^{n+1} = v^n - \dd t \left(v^{n} + \frac{1}{\varrho} \grad p^{n+1} - \nu \grad^2 v^n - g^n\right).
 \end{equation}
 Subtracting these two equations yield an expression for \( v^\mathrm{c} \):
 \begin{align}
@@ -113,4 +113,105 @@ discretizing in space. This leads to the need for more boundary conditions in
 order to solve the Poisson-problem for the pressure difference. An alternative
 approach discretizes in space before we discretize in time. This removes the
 need for construction of additional boundary conditions as these are baked into
-the algebraic constraints.
+the algebraic constraints. Discretizing the spatial operators in
+\cref{eq:NS,eq:NSc} using for instance a finite element method yields a set of
+linear systems:
+\begin{align}
+    \bsy{M}\dot{\bsy{u}} + \bsy{K}(\bsy{u}) \bsy{u} &= - \bsy{Q}\bsy{p} + \A\bsy{u} + \bsy{f}, \\
+    \bsy{Q}^T\bsy{u} &= 0.
+\end{align}
+
+\subsection{Explicit Schemes}
+
+We can employ the same methodology as in \cref{sub:operator_splitting}. Compute
+a tentative velocity \( \u^\star \) from 
+\begin{equation}
+    \bsy{M}\u^\star = \bsy{M}\u^n + \dd t \left( -\bsy{K}(\u^n)\u^n - \beta
+    \bsy{Q}\bsy{p}^n+ \A \u^n + \bsy{f}^n\right).
+\end{equation}
+Again, this tentative velocity does not necessarily satisfy the equation of
+continuity, \(\bsy{Q}^T\u = 0\). We use \( \u^\star \) to compute a correction
+term \( \u^\mathrm{c} \) such that \( \u^{n+1} \coloneqq \u^\star +
+\u^\mathrm{c} \) satisfies \( \bsy{Q}^T \u^{n+1} = 0 \). In analogous fashion
+to the operator splitting method we can formulate a discrete Poisson equation
+for the pressure difference \( \varphi \):
+\begin{equation}
+    \bsy{Q}^T\bsy{M}^{-1}\bsy{Q}\varphi = \frac{1}{\dd t} \bsy{Q}^T\u^\star.
+\end{equation}
+Solving this for \( \varphi \) we update the pressure and velocity for the next
+time level:
+\begin{align}
+    \bsy{p}^{n+1} &= \beta \bsy{p}^n  + \varphi, \\
+    \u^{n+1} &= \u^\star - \dd t \bsy{M}^{-1}\bsy{Q}\varphi.
+\end{align}
+
+\subsection{Classical Schemes}
+\label{sub:classical_schemes}
+
+We may employ a more general implicit scheme, known as the \(\theta\)-scheme.
+Here \( \theta \) is a \emph{blending parameter}, where \( \theta = 0 \)
+corresponds to the Backward Euler scheme, \( \theta = 1/2 \) corresponds to the
+Crank--Nicolson scheme, and \( \theta = 0\) yields the explicit Forward Euler
+Scheme as above. It turns out that these classical schemes can be viewed in the
+light of iterative methods. 
+
+Discretizing in time yields what we will refer to as the \emph{fully implicit
+system}:
+\begin{align}
+    \bsy{N}\u^{n+1} + \dd t \bsy{Q}\bsy{p}^{n+1} &= \bsy{q}, \\
+    \bsy{Q}^T\bsy{u}^{n+1} &= 0.
+\end{align}
+Here we have abbreviated as follows:
+\begin{align}
+    \bsy{N} &\coloneqq \bsy{M} + \theta \dd t \bsy{R}(\u)^{n}, \\
+    \bsy{R}(\u^n) &\coloneqq \bsy{K}(\u^n) - \A, \\
+    \bsy{q} &\coloneqq (\bsy{M} - (1- \theta)\dd t \bsy{R}(\u^n))\u^n + \dd t \bsy{f}^{n}.
+\end{align}
+Assuming invertibility of \( \bsy{N} \) we can solve this for \( \u^{n+1} \)
+--- and inserting this into the second equation yields what is known as the
+\emph{Schur complement pressure equation}:
+\begin{align}
+    \label{eq:schur}
+    \bsy{Q}^T\bsy{N}^{-1}\bsy{Q}\bsy{p}^{n+1} = \frac{1}{\dd t}\bsy{Q}^T\bsy{N}^{-1}\bsy{q}.
+\end{align}
+The system \( \bsy{N}^{-1} \) can often be computationally costly to solve.
+Since \( \bsy{N} \) is a sparse matrix, \(\bsy{N}^{-1}\) is dense, so we we
+would like some other way of dealing with this equation.  Luckily, we can note
+that \cref{eq:schur} is a linear system of the form
+\begin{equation}
+    \B \bsy{p}^{n+1} = \b.
+\end{equation}
+A preconditioned Richardson iteration can be formulated for \( \bsy{p}^{n+1} \)
+\begin{equation}
+    \bsy{p}^{n+1, k+1} = \bsy{p}^{n+1, k} - \bsy{C}_1^{-1}(\B\bsy{p}^{n+1, k} - \b),
+\end{equation}
+where \(\bsy{C}_1^{-1}\) is a preconditioner similar to \(\bsy{N}^{-1}\)
+however in some sense, simpler to solve, and \( k \) is an iteration counter.
+For each time level we start the iteration with \( \bsy{p}^{n+1, 0} = \bsy{p}^n
+\). For the Schur complement pressure equation this yields an iteration of the
+form
+\begin{equation}
+    \bsy{p}^{n+1, k+1} = \bsy{p}^{n+1, k} - \bsy{C}_1^{-1}(\bsy{Q}^T\bsy{N}^{-1}\bsy{Q}\bsy{p}^{n+1, k} - \frac{1}{\dd t}\bsy{Q}^T \bsy{N}^{-1} \bsy{q}).
+\end{equation}
+Formulating a similar procedure for the velocity, with preconditioner
+\(\bsy{C}_2^{-1}\) we end up with a preconditioned system similar to the fully
+implicit system:
+\begin{equation}
+    \begin{bmatrix}
+        \bsy{C}_1 & 0 \\
+        0 & \bsy{C}_2 
+    \end{bmatrix}
+    \begin{bmatrix}
+        \bsy{N} & \bsy{Q} \\
+        \bsy{Q}^T & 0
+    \end{bmatrix}
+    \begin{bmatrix}
+        \bsy{u}  \\
+        \bsy{p}
+    \end{bmatrix}
+    = 
+    \begin{bmatrix}
+        \bsy{q} \\
+        \bsy{0}
+    \end{bmatrix}.
+\end{equation}

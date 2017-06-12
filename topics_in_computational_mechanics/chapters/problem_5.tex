@@ -1,0 +1,193 @@
+\chapter[Iterative methods]{Iterative Methods}
+
+\begin{problem_text}
+Describe the Richardson iteration. Explain spectral equivalence and show
+how spectral equivalence may lead to convergence in a constant number of
+iterations. Explain what to expect for the Poisson problem when using
+Conjugate Gradient methods combined with Jacobi, ILU, and AMG based on
+experiments with FEniCS. How does it compare with direct methods?
+\end{problem_text}
+
+In this section we will be dealing with linear systems of the form
+\begin{equation}
+    \label{eq:linsys}
+    A u = b, 
+\end{equation}
+where \(A\) is a \(N\times N\) square matrix. In applications \( N \) might be
+very large, typically between \(10^6\) and \(10^9\), and is often sparse. For
+instance collocation matrices with basis functions that exhibit local support
+properties will typically only have \( \mathcal{O}(N) \) nonzero elements.
+This means, that in general, solving systems of the form as in \cref{eq:linsys}
+by computing \( A^{-1} \) is computationally very expensive. In light of this
+we will examine alternative methods, namely \emph{iteration methods}, and
+\emph{preconditioning}.
+
+\section{The Richardson Iteration}
+\label{sec:the_richardson_iteration}
+
+The simplest iteration we consider is the \emph{Richardson iteration}. This is
+given as
+\begin{equation}
+    \label{eq:iteration}
+    u^{n} = u^{n-1} - \tau \left( A u^{n-1} - b \right),
+\end{equation}
+where \( \tau \) is a relaxation parameter that gives us some control over the
+iteration. This value must be determined. The Richardson iteration is
+consistent in the sense that if we happen to have converged to the correct
+solution, i.e., that \( u^{n-1} = \u \), then \( u^n = \u \) as well.  Every
+iteration consists of a matrix-vector product, hence the procedure has a time
+complexity of \( \mathcal{O}(n) \) \textsc{flops}.
+
+\subsection{Error Analysis}
+\label{sub:error_analysis}
+
+Denote by \( e^n \coloneqq u^n - u \) the error in the \(n\)-th iteration.
+Subtracting \( u \) from both sides of \cref{eq:iteration} yields
+\begin{equation}
+    \label{eq:iteration_error}
+    e^n = e^{n-1} - \tau Ae^{n-1}.
+\end{equation}
+We can analyze this iterative error in terms of the \( L^2 \)-norm, which we in
+the following denote by \( \| \cdot \| \):
+\begin{equation}
+    \| e^n \| = \| e^{n-1} - \tau Ae^{n-1} \| \leq \| I - \tau A\|_M \| e^{n-1}\|.
+\end{equation}
+Here \( \| \cdot \|_M\) denotes the induced matrix norm. If \( \| I - \tau A
+\|_M < 1 \), then the iteration converges to the exact solution. The question
+now is, how do we ensure this. And in the case of convergence, what is the
+convergence rate?  For a symmetric and positive definite matrix \( A \), the
+matrix norm of \( A \), defined as
+\begin{equation}
+    \| A \|_M \coloneqq \max_x \frac{\|Ax\|}{\|x\|},
+\end{equation}
+is equal to the largest eigenvalue of \( A \), denoted \( \lambda_{\max} \). We
+can use this fact to discuss the norm of \( I - \tau A \). We have that
+\begin{equation}
+    \| I - \tau A \|_M = \max_x \frac{\|(I - \tau A)x\|}{\| x \|}.
+\end{equation}
+We can find the optimal relaxation parameter \( \tau \) by noting that the
+minimum value for \( \| I - \tau A \|_M \) is attained when \( (1 - \tau
+\lambda_{\min}) = - (1 - \tau \lambda_{\max}) \). Solving for \( \tau \) yields 
+\begin{equation}
+    \tau = \frac{2}{\lambda_{\max} + \lambda_{\min}}.
+\end{equation}
+We denote this by \( \tau_{\mathrm{optimal}} \).  The matrix norm of \( I -
+\tau_{\mathrm{optimal}} A\) is equal to its largest eigenvalue, and by choice
+of the relaxation parameter, we have that the largest eigenvalue and the
+smallest eigenvalue is equal, hence
+\begin{align}
+    \| I - \tau_{\mathrm{optimal}} A\|_M   = 1 - \tau_{\mathrm{optimal}}
+    \lambda_{\min} = 1 - \frac{2\lambda_{\min}}{\lambda_{\max} +
+    \lambda_{\min}} = \frac{\lambda_{\max} - \lambda_{\min}}{\lambda_{\max} +
+    \lambda_{\min}}.
+\end{align}
+Recalling that the \emph{condition number} \( \kappa \) of a matrix \( A \) is
+the largest eigenvalue divided by the smallest, we have from the above that
+\begin{align}
+    \| I - \tau_{\mathrm{optimal}} A\|_M = \frac{\kappa - 1}{\kappa + 1}, 
+\end{align}
+and note that this number is always strictly smaller than one. We have
+therefore shown that the Richardson iteration converges, and that the rate of
+convergence \emph{depends} on the eigenvalues of the matrix \( A \).
+
+\subsection{Iteration Stopping Criteria}
+
+In order for this iteration method to be useful, we need to somehow know how
+many iterations to perform until a certain error tolerance has been met.
+Assuming we want to reduce the error by a factor \( \varepsilon \), i.e., we
+require \(\|e^n\| / \|e^0\| \leq \varepsilon\).  To this end, recall that
+\begin{align}
+    \|e^n \| &\leq \frac{\kappa - 1}{\kappa + 1} \| e^{n-1} \|.
+    \shortintertext{Repeatedly applying one iteration yields}
+    \|e^n \| &\leq \left(\frac{\kappa - 1}{\kappa + 1}\right)^n \|e^0\|.
+    \shortintertext{Dividing by \( \|e^0\| \) and requiring this to be smaller
+    than \( \varepsilon \) yields}
+    \frac{\|e^n\|}{\|e^0\|} &\leq \left( \frac{\kappa-1}{\kappa+1} \right)^n
+    \leq \varepsilon.
+\end{align}
+We can solve for \( n \) which yields
+\begin{equation}
+    n \geq \frac{\log(\varepsilon)}{\log(\kappa - 1) - \log(\kappa + 1)},
+\end{equation}
+where the inequality sign is flipped due to dividing by something negative.
+So, we could for instance set \( n \) to be the integer ceiling of this value
+to ensure that our error ratio is as small as we wanted:
+\begin{equation}
+    n \coloneqq \left\lceil \frac{\log(\varepsilon)}{\log(\kappa - 1) - \log(\kappa + 1)} \right\rceil.
+\end{equation}
+
+Note now that our required number of iterations \( n \) is a function of the
+condition number \( \kappa \), and the condition number is entirely dependent
+on the eigenvalues of the matrix \( A \). In applications we often have mesh
+dependent eigenvalues which means that our error estimates change depending on
+what type of mesh we choose. One example is particularity enlightening, namely
+that of the Poisson equation on the open domain \( (0, 1) \subset \R \) where
+the corresponding eigenvalues of \( A \) are 
+\begin{equation*}
+    \lambda_i = \frac{4}{h^2} \sin^2\Big(\frac{\pi i h}{2}\Big)
+\end{equation*}
+yielding \( \lambda_{\min} = \pi^2 \) and \( \lambda_{\max} = 4 / h^2 \).  The
+corresponding condition number is then \( \kappa = 4 / (\pi h)^2 \). This means
+that by refining the mesh leads to the need for \emph{more} iterations until
+convergence, which is \emph{not} a good trait. 
+
+In order to remedy this we turn to the notion of \emph{spectral equivalence}
+and the method of \emph{preconditioning}.
+
+\section{Spectral Equivalence and Preconditioning}
+\label{sec:spectral_equivalence_and_preconditioning}
+
+The idea of preconditioning is to instead of solving the system \( A u = b \)
+by inverting \( A \), solve the system \( B A u = B b \), where \( B \) is some
+suitable matrix, called the \emph{preconditioner}, that is both easy to store
+and easy to compute. The defining criteria is that the matrix \( B A \) should
+have a smaller condition number than the matrix \( A \). Performing the same
+analysis as in \vref{sub:error_analysis}, we see that the error in the \(n\)-th
+Richardson iteration of this new system is
+\begin{equation}
+    e^n = e^{n-1} - \tau B A e^{n-1}.
+\end{equation}
+Consequently, the iteration converges if \( \|I - \tau B A \| < 1 \).  We list
+some criteria for choosing a preconditioner:
+\begin{enumerate}
+    \item The evaluation of \(B\) on a vector should be \( \mathcal{O}(N) \), 
+    \item the storage of \(B\) should be \( \mathcal{O}(N) \), and
+    \item the matrix \(B\) should be spectrally equivalent with \( A^{-1} \).
+\end{enumerate}
+The notion of \emph{spectral equivalence} is defined as follows:
+\begin{definition}[Spectral Equivalence]
+    Two symmetric and positive definite linear operators \( A^{-1} \) and \( B
+    \) are called \emph{spectrally equivalent} if there exists constants \( c_1
+    \) and \( c_2 \) such that
+    \begin{equation}
+        c_1 \langle A^{-1}v, v \rangle \leq \langle Bv, v \rangle \leq c_2
+        \langle A^{-1}v, v \rangle
+    \end{equation}
+    for all \( v \). If \( A^{-1} \) and \( B \) are spectrally equivalent,
+    then the condition number \( \kappa \) of the matrix \( BA\) is bounded as
+    \( \kappa \leq c_2 / c_1 \).
+\end{definition}
+
+If we choose a matrix \(B\) spectrally equivalent matrix to \( A^{-1} \), we
+know that the Richardson iteration is order optimal, as the condition number is
+bounded independently of the discretization.
+
+\section{Krylov Methods}
+\label{sec:krylov_methods}
+
+The Richardson iteration discussed above is a linear iteration. It turns out
+that any alternative linear iteration method can be written as a Richardson
+iteration with a preconditioner. There are however non-linear iteration
+methods, where, for instance, the need to determine the relaxation parameter \(
+\tau \) beforehand is removed. Some honorable mentions:
+\begin{enumerate}
+    \item The Conjugate Gradient method --- Used when the matrix is symmetric
+        and positive definite. Requires a symmetric and positive definite
+        preconditiner;
+    \item the Minimal Residual method --- Used when the matrix is symmetric but
+        indefinite. Also requires a symmetric and positive definite
+        preconditioner; 
+    \item GMRES with either ILU or AMG --- Used for positive matrices, i.e., in
+        convection-diffusion problems.
+    \item BiCGStab / GMRES --- Used for nonsymmetric and indefinite matrices.
+\end{enumerate}

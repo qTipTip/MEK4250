@@ -96,6 +96,7 @@ This determines a linear system
 \end{equation}
 where the matrix entries are determined as follows:
 \begin{equation}
+    \label{eq:fem_poisson}
     A_{i, j} = a(\varphi_i, \varphi_j), \quad b_j = L(\varphi_j).
 \end{equation}
 
@@ -152,6 +153,12 @@ Lax--Milgram theorem, hence is well posed. In addition, the solution \( u \) sat
 \begin{equation}
     \| u \|_1 \leq \frac{(C^2 + 1)^{-1}}{\|\kappa\|}\| f \|_{-1}.
 \end{equation}
+In the abstract framework, this corresponds to the operator \( A : \test \to
+\test^\star \) given by 
+\begin{equation}
+    \langle Au, v \rangle = L(v)
+\end{equation}
+is an isomorphism.
 
 \section{Extensions to Other Problems}
 \label{sec:extensions_to_other_problems}
@@ -159,7 +166,7 @@ Lax--Milgram theorem, hence is well posed. In addition, the solution \( u \) sat
 Recall that the equation of linear elasticity is given as
 \begin{equation}
     \label{eq:lin_elast_poisson}
-    - 2 \mu ( \div \varepsilon(u)) - \lambda \grad(\div u) = 0
+    - 2 \mu ( \div \varepsilon(u)) - \lambda \grad(\div u) = f
 \end{equation}
 where \(\varepsilon(u) \coloneqq (\grad u + (\grad u)^T) / 2 \) is the strain
 tensor. Ignoring the second term, first term is supposedly a
