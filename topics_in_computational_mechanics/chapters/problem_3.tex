@@ -168,11 +168,12 @@ Recall that \( \c \) are the degrees of freedom for the velocity, and that \(
 \begin{equation}
     \d = (\B\A^{-1}\B^T)^{-1} \B\A^{-1}\b.
 \end{equation}
-Under what cirumstances is \( \B\A^{-1}\B^T \) invertible? Since \( \A \) is
+Under what circumstances is \( \B\A^{-1}\B^T \) invertible? Since \( \A \) is
 invertible, we need only consider whether \( \B\B^T \) is invertible. This is
 equivalent to verifying that \( \Ker(\B) = 0 \), and it is exactly this the \(
 \inf\)-\(\sup\) condition in \vref{eq:infsup} gives sufficient conditions for.
-Hence if this is not satisfied, we may be solving a non-invertible system.
+Hence if this is not satisfied, we may be solving a non-invertible system when
+computing the pressure, which may yield oscillations.
 
 If \( n \) and \( m \) denotes the number of degrees of freedom for the
 velocity and the pressure respectively, the block matrix equation is
@@ -186,7 +187,7 @@ In the following, set \( e_u \coloneqq u - u_h \) and \( e_p \coloneqq p - p_h
 \).  For finite element pairs that satisfy the \( \inf \)-\(\sup\) condition
 \cref{eq:infsup} we have an error estimate that reads
 \begin{equation}
-    \| e_u \|_1 + \| e_p \|_1 \leq C h^k \|u\|_{k+1} + D h^{\ell + 1} \|p\|_{\ell + 1}
+    \| e_u \|_1 + \| e_p \|_0 \leq C h^k \|u\|_{k+1} + D h^{\ell + 1} \|p\|_{\ell + 1}
 \end{equation}
 where \( k \) and \( \ell \) denotes the polynomial degree of the velocity and
 pressure. Finding finite element pairs that satisfies the conditions for this
@@ -233,17 +234,17 @@ Using this to solve for the velocity \( \c \):
 \begin{equation}
     \c = (\d + \D^{-1}d) \left(\A + \frac{1}{\varepsilon}\B^T\D^{-1}\B\right)^{-1}
 \end{equation}
-provided that the matrix on the right is infact invertible. It can be verified
+provided that the matrix on the right is in fact invertible. It can be verified
 that is is by noting that \(\A\) is positive by construction, and \( \B^T
-\D^{-1} B \) is positive if \( \D \) is positive. Hence, in chosing \( \D \) we
-need to make sure it is infact positive. Three choices for \( \D \) are
+\D^{-1} B \) is positive if \( \D \) is positive. Hence, in choosing \( \D \) we
+need to make sure it is in fact positive. Three choices for \( \D \) are
 proposed, all based on perturbed versions of the equation of continuity \( \div
 u = 0 \):
 \begin{enumerate}[(i)]
     \item Setting \( \D \coloneqq \A \), this corresponds to pressure
         stabilization where \(\div v = \varepsilon \lapl p \); 
     \item setting \( \D \coloneqq \boldsymbol{M}\), corresponding to the
-        penality method where \( \div v = \varepsilon p \); or 
+        penalty method where \( \div v = \varepsilon p \); or 
     \item setting \( \D \coloneqq (1/\Delta t) M\) corresponding to artificial
         compressibility, \( \div v= -\varepsilon (\partial p/\partial t)
         \).

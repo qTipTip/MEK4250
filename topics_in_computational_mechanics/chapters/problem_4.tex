@@ -73,7 +73,7 @@ After solving this for \( \varphi \) we may update our solution in both
 velocity and pressure as follows:
 \begin{align}
     \label{eq:update}
-    p^{n+1} &= \beta p + \varphi, \\
+    p^{n+1} &= \beta p^n + \varphi, \\
     v^{n+1} &= v^\star - \frac{\dd t}{\varrho} \grad \varphi.
 \end{align}
 
@@ -158,12 +158,12 @@ light of iterative methods.
 Discretizing in time yields what we will refer to as the \emph{fully implicit
 system}:
 \begin{align}
-    \bsy{N}\u^{n+1} + \dd t \bsy{Q}\bsy{p}^{n+1} &= \bsy{q}, \\
+    \bsy{N}\u^{n+1} + \dd t \bsy{Q}\bsy{p}^{n+1} &= \bsy{q}^{n+1}, \\
     \bsy{Q}^T\bsy{u}^{n+1} &= 0.
 \end{align}
 Here we have abbreviated as follows:
 \begin{align}
-    \bsy{N} &\coloneqq \bsy{M} + \theta \dd t \bsy{R}(\u)^{n}, \\
+    \bsy{N} &\coloneqq \bsy{M} + \theta \dd t \bsy{R}(\u^{n}), \\
     \bsy{R}(\u^n) &\coloneqq \bsy{K}(\u^n) - \A, \\
     \bsy{q} &\coloneqq (\bsy{M} - (1- \theta)\dd t \bsy{R}(\u^n))\u^n + \dd t \bsy{f}^{n}.
 \end{align}

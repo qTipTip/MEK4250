@@ -118,18 +118,25 @@ We verify the three properties in turn:
             \| \grad u \|_0 \| \grad v \|_0
             = \|\kappa\| \| u \|_1 \| v \|_1
         \end{equation}
-        This is close to proving boundedness of \( a \), however, I do not know
-        how to deal with the \( \| \kappa \| \). However, for \( \kappa = 1\)
-        this proves the claim.
+        This is close to proving boundedness of \( a \). Using the definition
+        of the operator norm, we can write
+        \begin{equation}
+            \| \kappa \| \leq C \| u \|_1, 
+        \end{equation}
+        and inserting this above we get
+        \begin{equation}
+            a(u, v) \leq C \| u \|_1 \| v\|_1.
+        \end{equation}
+        This proves the boundedness of \( a \).
 
     \item[Coercivity of \(a \):]
         Let \( u \in H^1 (\Omega) \) and consider the following:
         \begin{equation}
             \| u \|_1^2 \overset{\text{def}}{=} \| u \|_0^2 + \| \grad u \|_0^2
             \underbrace{\leq}_{\mathclap{\text{Using the Poincar\'e inequality
-            on } H^1_0(\Omega)}} \geq (C^2 + 1) \| \grad u \|_0^2
+            on } H^1_0(\Omega)}} (C^2 + 1) \| \grad u \|_0^2
         \end{equation}
-        This shows that \( a(u, u) \ (C^2 + 1)^{-1} \| u \|_1^2 \) in the
+        This shows that \( a(u, u) \geq (C^2 + 1)^{-1} \| u \|_1^2 \) in the
         case where \( \kappa = 1 \) identically. 
 
     \item[Boundedness of \( L \):]
@@ -149,7 +156,8 @@ We verify the three properties in turn:
         This proves the boundedness of \( L \).
 \end{description}
 This means that the weak formulation of the Poisson problem satisfies the
-Lax--Milgram theorem, hence is well posed. In addition, the solution \( u \) satisfies
+Lax--Milgram theorem, hence is well posed. In addition, the solution \( u \)
+satisfies
 \begin{equation}
     \| u \|_1 \leq \frac{(C^2 + 1)^{-1}}{\|\kappa\|}\| f \|_{-1}.
 \end{equation}
@@ -238,7 +246,7 @@ for all \( v \in \test \). This does however not give any sharp bounds, so it
 is hard to quantify exactly what magnitude the error has. We can however
 combine this result with an interpolation error estimate:
 \begin{equation}
-    \| e \|_E \leq \| u - \pi_{q, h} u\|_E \leq C(q) \| h^{q + 1}
+    \| D^p e \|_E \leq \| u - \pi_{q, h} u\|_E \leq C(p, q) \| h^{q + 1-p}
     D^{q+1} u\|.
 \end{equation}
 Here, \( \pi_{q, h} u\) denotes the \( q \)-th order interpolant to \( u \),
@@ -262,7 +270,7 @@ the coercivity of \( a \) we have:
 Dividing by \( \|e\|_V \) and combining with an interpolation error estimate,
 as we did above, 
 \begin{equation}
-    \|e \|_V \leq \frac{D C(q)}{\alpha} \|h^{q+1} D^{q+1}u \|.
+    \|D^pe \|_V \leq \frac{D C(p, q)}{\alpha} \|h^{q+1-p} D^{q+1}u \|.
 \end{equation}
 
 \section{Error Approximation}
