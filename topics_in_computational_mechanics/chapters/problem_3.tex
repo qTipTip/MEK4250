@@ -43,7 +43,8 @@ given by
 We can therefore instead consider the weak form of the Stokes problem, namely:
 Find \( u \in V \) and \( p \in W \) such that 
 \begin{align}
-    a(u, v) + b(p, v) &= f(v) \text{ for all } v \in \test,\\
+    \label{eq:stokes_variational}
+    a(u, v) + b(p, v) &= L(v) \text{ for all } v \in \test,\\
     b(q, u) &= 0 \text{ for all } q \in \hat{W}.
 \end{align}
 

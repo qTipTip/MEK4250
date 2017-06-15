@@ -177,13 +177,13 @@ Recall that the equation of linear elasticity is given as
     - 2 \mu ( \div \varepsilon(u)) - \lambda \grad(\div u) = f
 \end{equation}
 where \(\varepsilon(u) \coloneqq (\grad u + (\grad u)^T) / 2 \) is the strain
-tensor. Ignoring the second term, first term is supposedly a
-Poisson-equation\footnote{This needs to be verified.}.  However, in order to
-check whether we can apply the results found for the abstract Poisson-problem
-we need to determine what the \( \grad (\div u) \) in the second term is. The
-Helmholtz decomposition theorem states that any \( u \) in \( L^2(\Omega) \)
-can be decomposed into a curl-free part \( \psi \)  and a divergence-free part
-\( \varphi \):
+tensor. Ignoring the second term, first term is a Poisson-equation as \(\div
+(\grad u)^T\) = \( \grad \div u \).  However, in order to check whether we can
+apply the results found for the abstract Poisson-problem we need to determine
+what the \( \grad (\div u) \) in the second term is. The Helmholtz
+decomposition theorem states that any \( u \) in \( L^2(\Omega) \) can be
+decomposed into a curl-free part \( \psi \)  and a divergence-free part \(
+\varphi \):
 \begin{equation}
     u = \psi + \varphi 
 \end{equation}
@@ -246,7 +246,7 @@ for all \( v \in \test \). This does however not give any sharp bounds, so it
 is hard to quantify exactly what magnitude the error has. We can however
 combine this result with an interpolation error estimate:
 \begin{equation}
-    \| D^p e \|_E \leq \| u - \pi_{q, h} u\|_E \leq C(p, q) \| h^{q + 1-p}
+    \| D^p e \|_E \leq \| D^p(u - \pi_{q, h} u)\|_E \leq C(p, q) \| h^{q + 1-p}
     D^{q+1} u\|.
 \end{equation}
 Here, \( \pi_{q, h} u\) denotes the \( q \)-th order interpolant to \( u \),
@@ -280,8 +280,8 @@ Let \( N \) denote the number of basis elements over the domain. Then we can
 consider the error as a function of \( N \). Using degree \( p \) elements over
 a mesh with maximal mesh size of \( h \). Let \( u \) denote the analytic
 solution, and \( u_N \) the computed solution with \( N \) basis elements.
-Denote by \( e_N \) the error in the corresponding approximation.
-We wish to approximate the convergence rate \( \beta \) in the following:
+Denote by \( e_N \) the error in the corresponding approximation.  We wish to
+approximate the convergence rate \( \beta \) in the following:
 \begin{equation}
     \| e \|_V \leq \| h^\beta D^\beta u \|.
 \end{equation}

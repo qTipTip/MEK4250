@@ -42,7 +42,8 @@ complexity of \( \mathcal{O}(n) \) \textsc{flops}.
 \label{sub:error_analysis}
 
 Denote by \( e^n \coloneqq u^n - u \) the error in the \(n\)-th iteration.
-Subtracting \( u \) from both sides of \cref{eq:iteration} yields
+Note that we have \( A e^n = A(u^n - u) = Au^n - b \). Subtracting \( u \)
+from both sides of \cref{eq:iteration} yields
 \begin{equation}
     \label{eq:iteration_error}
     e^n = e^{n-1} - \tau Ae^{n-1}.
@@ -116,6 +117,7 @@ to ensure that our error ratio is as small as we wanted:
     n \coloneqq \left\lceil \frac{\log(\varepsilon)}{\log(\kappa - 1) - \log(\kappa + 1)} \right\rceil.
 \end{equation}
 
+\begin{remark}
 Note now that our required number of iterations \( n \) is a function of the
 condition number \( \kappa \), and the condition number is entirely dependent
 on the eigenvalues of the matrix \( A \). In applications we often have mesh
@@ -130,6 +132,18 @@ yielding \( \lambda_{\min} = \pi^2 \) and \( \lambda_{\max} = 4 / h^2 \).  The
 corresponding condition number is then \( \kappa = 4 / (\pi h)^2 \). This means
 that by refining the mesh leads to the need for \emph{more} iterations until
 convergence, which is \emph{not} a good trait. 
+\end{remark}
+
+The iteration stopping criteria discussed above is \emph{completely reliant} on
+the exact solution being known. Hence we cannot, in most cases, use this
+approach. One might instead be able to use the \emph{residual} at the \(n\)-th
+iteration, defined as:
+\begin{equation}
+    r^n \coloneqq Au^n - b.
+\end{equation}
+It can be shown that \(Ae^n = r^n \), and we can therefore formulate a stopping
+critera in terms of the residual, however this requires the inversion of the
+matrix \( A \).
 
 In order to remedy this we turn to the notion of \emph{spectral equivalence}
 and the method of \emph{preconditioning}.
