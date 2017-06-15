@@ -1,0 +1,196 @@
+\chapter{Linear Elasticity}
+
+\begin{problem_text}
+    Describe a variational formulation of the linear elasticity equation.
+    Discuss appropriate boundary conditions, problems associated with rigid
+    motions, and Korn's lemma. Discuss the locking phenomenon and mixed
+    formulations that avoid locking.
+\end{problem_text}
+
+The topic of linear elasticity deals with deformation of an elastic body.
+By Newton's second law we have that
+\begin{align}
+    \div \sigma &= f, \text{ in } \Omega,\\
+    \sigma \cdot n &= g, \text{ on } \Gamma_N
+\end{align}
+where \( f \) and \( g  \) denote body and surface forces respectively.  For
+small deformations of an isotropic media, we may approximate this using Hooke's
+law, which states that
+\begin{equation}
+\sigma = 2 \mu \varepsilon(u) + \lambda \tr{\varepsilon(u)}\delta.
+\end{equation}
+Here, \( \varepsilon (u) \) denotes the symmetric gradient
+\begin{equation}
+    \varepsilon(u) \coloneqq \frac{\grad u + (\grad u)^T}{2}.
+\end{equation}
+Combining Newton's second law, and Hooke's law, yields the linear elasticity equation:
+\begin{equation}
+    \label{eq:linelast}
+    -2\mu(\div \varepsilon(u)) - \lambda \grad(\div u) = f.
+\end{equation}
+We already saw in \vref{sec:extensions_to_other_problems} that, in some
+circumstances, this equation reduces to a Poisson equation. However, in this
+section, we discuss it in its generality.
+
+\section{Variational Formulation}
+\label{sec:variational_formulation}
+
+We here derive the variational formulation of the linear elasticity equation.
+For a standard Galerkin method, we integrate by parts as follows:
+\begin{align}
+    \langle -2\mu(\div \varepsilon(u), v \rangle - \lambda \langle \grad (\div
+        u), v \rangle = \langle f, v \rangle,
+    \shortintertext{where Gauss--Green's lemma gives}
+     \langle 2\mu \varepsilon(u), \grad v \rangle - \int_{\Gamma_N}2\mu
+     \varepsilon(u) \cdot n v \, \dd S \\ + \langle \lambda (\div u), \div v
+     \rangle - \langle \lambda(\div u) \cdot n, v \rangle_{\Gamma_N} =
+     \langle f, v \rangle.
+\end{align}
+Simplifying this yields
+\begin{equation}
+    \langle 2\mu\varepsilon(u), \grad v \rangle + \langle \lambda(\div u), \div v \rangle = \langle f, v \rangle + \langle \sigma \cdot n, v \rangle_{\Gamma_N}.
+\end{equation}
+Introducing the two operators \( a \) and \( L \):
+\begin{align}
+    a(u, v) &\coloneqq 2\mu\langle \varepsilon(u), \varepsilon(v)\rangle +
+    \lambda \langle \div u, \div v \rangle \\
+    L(v) &\coloneqq \langle f, v \rangle + \langle g, v \rangle_{L^2({\Gamma_N})}
+\end{align}
+
+\subsection{Boundary conditions}
+\label{sub:boundary_conditions}
+
+The natural boundary conditions for the linear elasticity is the pure Neumann
+conditions
+\begin{equation}
+    \sigma \cdot n = g.
+\end{equation}
+There are a number of subtleties related to the choice of boundary conditions
+for the linear elasticity question.  It turns out that having pure Dirichlet
+boundary conditions yields a unique solution, and this is formulated in Korn's
+lemma. Having mixed Neumann and Dirichlet conditions also works. Having pure
+Neumann conditions on the other hand leads to a singular system, and this is
+due to the operator \( \div \varepsilon(u) \). This can be seen as analogous to
+the case where we have pure Neumann boundary conditions in the Poisson problem.
+
+\section{Rigid Motions}
+\label{sec:rigid_motions}
+
+This section deals with the problem of having pure Neumann conditions. The
+kernel of \( \div \varepsilon \) is the set of rigid motions. This means that
+if an elastic body \( u \) solves the equation of linear elasticity, then any
+translations and rotations of \( u \), yielding a new elastic body \( \tilde u
+\), then \( \tilde u \) also solves the linear elasticity equation.
+
+As an example in \( \R^2 \), let \( u \) be the rigid motion
+\begin{equation}
+    \(u(x, y) \) \coloneqq \begin{bmatrix}
+        a_1 \\
+        a_2
+    \end{bmatrix} + b \begin{bmatrix}
+        y \\
+        -x
+    \end{bmatrix}.
+\end{equation}
+Computing \( \div u \) we see that \( \div u = 0\). Furthermore, 
+\begin{equation}
+    \div \varepsilon(u) = \frac{1}{2} \left( \begin{bmatrix}
+            0 & -1 \\
+            1 & 0
+    \end{bmatrix} + \begin{bmatrix}
+        0 & 1 \\
+        -1 & 0
+    \end{bmatrix}\right) = 0, 
+\end{equation}
+hence the linear elasticity equation reduces to \( 0 = f \), meaning that \( f
+\) has to be zero. While this is indeed a \emph{solution}, it is not
+\emph{unique}, as we never talked about the values \( a_1, a_2 \) and \( b \).
+In order to describe a unique solution, we need to prescribe Dirichlet
+conditions to fixate these numbers. This means that in the case where we only
+have pure Neumann boundary conditions, we need to remove the rigid motions from
+the solution space.
+
+\section{Korn's Lemma}
+\label{sec:korn_s_lemma}
+
+The following lemmas provide suitable conditions for solvability of the linear
+elasticity equation. Denote \( \mathcal{R} \coloneqq \left\{ u \in H^1(\Omega)
+: u \text{ is a rigid motion} \right\}\). Starting with pure Neumann conditions
+we have the following: For all \( u \in H^1(\Omega) \setminus \mathcal{R} \) we
+have that
+\begin{equation}
+    \label{eq:korn_neumann}
+    \| \varepsilon(u) \| \geq C \| u \|_1.
+\end{equation}
+For the more special case of having homogenous Dirichlet conditions, where we
+do not need to discuss rigid motions at all we have that for all \( u \in
+H^1_0(\Omega) \):
+\begin{equation}
+    \| \varepsilon(u) \| \geq C\| u \|_1.
+\end{equation}
+
+\subsection{Removing The Set Of Rigid Motions}
+
+In order to remove the set of rigid motions, as is required in
+\cref{eq:korn_neumann}, we may employ a Lagrange multiplier method. Introducing
+the bilinear form \( b \) given as 
+\begin{equation}
+    b(u, v) = \langle u, v \rangle
+\end{equation}
+we can formulate a saddle point problem as follows: Find \( u \in H^1(\Omega)
+\setminus \mathcal{R} \) and \( \gamma \in \mathcal{R} \) such that 
+\begin{align}
+    a(u, v) + b(\gamma, v) &= L(v) \text{ for all } v \in H^1_0(\Omega), \\
+    b(u, \xi) &= 0 \text{ for all } \xi \in \mathcal{R}.
+\end{align}
+This is on the same form as \vref{eq:stokes_variational}, and we need to verify
+that it complies with the Babuska--Brezzi conditions.
+
+\section{Locking}
+
+The numerical artifact known as \emph{locking} has nothing to do with having
+pure Neumann conditions as in the previous section. We therefore discuss this
+in the context of homogenous Dirichlet conditions. The linear eliasticity
+equation then reads
+\begin{align}
+    \label{eq:locking_variational}
+    -\mu \lapl u - (\mu + \lambda)\grad\div u &= f \text{ in } \Omega, \\
+    u &= 0 \text{ on } \Gamma_D.
+\end{align}
+We have here used the fact that \( \div (\grad u)^T = \grad \div u = \lapl u\)
+in the symmetric gradient \( \varepsilon(u) \). Locking is a numerical artifact
+that occurs when \( \lambda \gg \mu \), and this is due to the nature of the
+operators \( \div \) and \( \grad \). The divergence \( \div \) deals with the
+flux through the element edges, hence using vertex based elements gives a bad
+approximation, where as the gradient \( \grad \) works fine with vertex based
+elements.
+
+\subsection{A Solution for Locking}
+
+The locking phenomenon can be avoided by introducing a solid pressure 
+\begin{equation}
+    p = (\mu + \lambda) \div u.
+\end{equation}
+Inserting this in \cref{eq:locking_variational} yields a new system
+\begin{align}
+    -\mu \lapl u - \grad p &= f \text{ in } \Omega, \\
+    \div u - \frac{p}{\mu + \lambda} &= 0 \text{ in } \Omega.
+\end{align}
+This can be formulated as a system similar to the Stokes problem in a sense
+that will be mentioned in the following. Introducing the operators \(a\), \(b\)
+and \(c\) as:
+\begin{align}
+    a(u, v) &= \langle \grad u, \grad v  \rangle, \\
+    b(p, v) &= \langle \grad p, v \rangle, \\
+    c(p, v) &= \frac{1}{\mu+\lambda} \langle p, q \rangle, 
+\end{align}
+then we wish to solve the system: Find \( u \in H^1_0(\Omega) \) and \( p \in L^2(\Omega) \)
+such that 
+\begin{align}
+    a(u, v) + b(p, v) &= L(v) \text{ for all } v \in H^1_0(\Omega), \\
+    b(u, q) - c(p, q) &= 0 \text{ for all } q \in L^2(\Omega).
+\end{align}
+In the limit as \( \lambda \to \infty\) we see that the operator \(c \) tends
+to zero, \( c \to 0 \). Hence in the limit, this reduces to a Stokes problem,
+which we already know is stable in pressure under certain choices for the
+finite element pairs.  One might employ a Taylor--Hood element for instance.
